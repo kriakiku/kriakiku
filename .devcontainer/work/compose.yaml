@@ -1,0 +1,23 @@
+name: "work"
+services:
+  work:
+    container_name: "work"
+    build:
+      dockerfile: Dockerfile
+    volumes:
+      - /opt/work:/opt/work
+      - share:/usr/local/share
+      - user:/root
+    networks:
+      - default
+      - proxy
+
+volumes:
+  share:
+  user:
+
+networks:
+  default:
+    driver: bridge
+  proxy:
+    external: true

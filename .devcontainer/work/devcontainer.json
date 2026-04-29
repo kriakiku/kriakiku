@@ -1,0 +1,111 @@
+{
+	"name": "Work",
+    "dockerComposeFile": "compose.yaml",
+    "service": "work",
+    "remoteUser": "root",
+    "updateRemoteUserUID": false,
+	"features": {
+        "ghcr.io/devcontainers/features/git:1": {},
+        "ghcr.io/devcontainers/features/git-lfs:1": {},
+        "ghcr.io/devcontainers/features/common-utils:2": { "configureZshAsDefaultShell": true },
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+        "ghcr.io/devcontainers/features/go:1": { "version": "latest" },
+        "ghcr.io/devcontainers/features/python:1": {},
+        "ghcr.io/devcontainers/features/node:2": {},
+
+        "ghcr.io/devcontainers-extra/features/bun:1": {},
+        "ghcr.io/devcontainers-extra/features/gitomatic:1": {},
+        "ghcr.io/devcontainers-extra/features/jira-cli:1": {},
+        "ghcr.io/devcontainers-extra/features/typescript:2": {},
+        // "ghcr.io/devcontainers-extra/features/vscode-cli:1": {},
+
+        // "ghcr.io/ChristopherMacGown/devcontainer-features/mcfly:1": {},
+        // "ghcr.io/ChristopherMacGown/devcontainer-features/direnv:1": {},
+        // "ghcr.io/ChristopherMacGown/devcontainer-features/minio-client:1": {},
+
+        "ghcr.io/skriptfabrik/devcontainer-features/gitlab-cli:1": {}
+    },
+
+    // "workspaceFolder": "/opt/work/frontends.code-workspace",
+    "workspaceFolder": "/opt/work",
+
+    "updateContentCommand": "devcontainer-post-update",
+    "postStartCommand": "devcontainer-post-start",
+    "postAttachCommand": "devcontainer-post-attach",
+
+	"customizations": {
+        "vscode": {
+			"settings": {
+                "terminal.integrated.defaultProfile.linux": "zsh",
+                "editor.fontFamily": "AtkynsonMono NFP",
+
+                "editor.defaultFormatter": "esbenp.prettier-vscode",
+                "files.autoSave": "afterDelay",
+                "eslint.format.enable": false,
+                "editor.formatOnSave": true,
+                "editor.codeActionsOnSave": {
+                    "source.fixAll.prettier": "explicit",
+                    "source.fixAll.eslint": "explicit"
+                },
+                "editor.unicodeHighlight.allowedCharacters": {
+                    "’": true
+                },
+                "editor.accessibilitySupport": "on",
+                "[go]": { "editor.defaultFormatter": "golang.go" },
+                "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+                "[javascriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+                "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+                "[typescriptreact]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode"
+                    // "editor.defaultFormatter": "vscode.typescript-language-features",
+                },
+                "[dockercompose]": {
+                    "editor.insertSpaces": true,
+                    "editor.tabSize": 2,
+                    "editor.autoIndent": "advanced",
+                    "editor.defaultFormatter": "redhat.vscode-yaml",
+                },
+
+                "workbench.colorTheme": "GitHub Light Colorblind (Beta)",
+                "workbench.iconTheme": "material-icon-theme",
+                "explorer.compactFolders": false,
+
+                "git.ignoreRebaseWarning": true,
+                "chat.disableAIFeatures": true,
+                "gitlab.duoChat.enabled": false,
+
+                "atlascode.jira.startWorkBranchTemplate.customTemplate": "feature/{{{issueKey}}}-{{{summary}}}",
+
+                "vscode-pets.theme": "beach",
+                "vscode-pets.petColor": "pink",
+                "vscode-pets.petSize": "medium",
+                "vscode-pets.throwBallWithMouse": true
+            },
+			"extensions": [
+                "aaron-bond.better-comments",
+                "mikestead.dotenv",
+                "github.github-vscode-theme",
+                "jdinhlife.gruvbox",
+                "mrmlnc.vscode-json5",
+                "pkief.material-icon-theme",
+                "william-voyek.vscode-nginx",
+                "simonsiefke.svg-preview",
+                "mariusschulz.yarn-lock-syntax",
+                "dunstontc.vscode-go-syntax",
+                "atlassian.atlascode",
+                "streetsidesoftware.code-spell-checker",
+                "editorconfig.editorconfig",
+                "dbaeumer.vscode-eslint",
+                "google.geminicodeassist",
+                "gitlab.gitlab-workflow",
+                "eamodio.gitlens",
+                "golang.go",
+                "ms-vscode.vscode-typescript-next",
+                "esbenp.prettier-vscode",
+                "stylelint.vscode-stylelint",
+                "tonybaloney.vscode-pets",
+                "redhat.vscode-yaml"
+            ]
+        }
+    }
+}
