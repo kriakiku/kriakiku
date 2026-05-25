@@ -8,7 +8,9 @@
         "ghcr.io/devcontainers/features/git:1": {},
         "ghcr.io/devcontainers/features/git-lfs:1": {},
         "ghcr.io/devcontainers/features/common-utils:2": { "configureZshAsDefaultShell": true },
-        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+            "moby": false
+        },
         "ghcr.io/devcontainers/features/go:1": { "version": "latest" },
         "ghcr.io/devcontainers/features/python:1": {},
         "ghcr.io/devcontainers/features/node:2": {},
