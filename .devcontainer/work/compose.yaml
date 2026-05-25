@@ -1,9 +1,16 @@
 name: "work"
 services:
+
+  binfmt:
+    image: tonistiigi/binfmt
+    privileged: true
+    command: --install amd64
+
   work:
     container_name: "work"
     build:
       dockerfile: Dockerfile
+    privileged: true
     volumes:
       - /opt/work:/opt/work
       - share:/usr/local/share
