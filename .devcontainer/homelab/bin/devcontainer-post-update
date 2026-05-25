@@ -3,3 +3,6 @@ set -e
 
 echo "ZSHRC setup..."
 devcontainer-zshrc
+
+echo "Installing Colmena..."
+nix-env -if https://github.com/zhaofengli/colmena/tarball/main
