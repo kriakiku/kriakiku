@@ -1,0 +1,23 @@
+name: "homelab"
+services:
+  homelab:
+    container_name: "homelab"
+    build:
+      dockerfile: Dockerfile
+    volumes:
+      - /opt/homelab:/opt/homelab
+      - share:/usr/local/share
+      - user:/root
+    networks:
+      - default
+      - proxy
+
+volumes:
+  share:
+  user:
+
+networks:
+  default:
+    driver: bridge
+  proxy:
+    external: true

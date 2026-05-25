@@ -1,0 +1,18 @@
+#!/bin/bash
+set -e
+
+NPMRC_FILE="/opt/work/.npmrc"
+TARGET_FILE="/root/.npmrc"
+
+if [ ! -f "$NPMRC_FILE" ]; then
+  echo ".npmrc file not found, creating default..."
+  tee "$NPMRC_FILE" > /dev/null <<EOF
+# {GITLAB_TOKEN} will be replaced with the actual token from env.sh
+# To apply the token restart bash or run 'source ~/.bashrc'
+@FILL_ME:registry=https://gitlab.com/api/v4/packages/npm/
+//gitlab.com/api/v4/packages/npm/:_authToken={GITLAB_TOKEN}
+//gitlab.com/api/v4/projects/:_authToken={GITLAB_TOKEN}
+EOF
+fi
+
+awk -v token="$GITLAB_TOKEN" '{gsub(/{GITLAB_TOKEN}/, token); print}' "$NPMRC_FILE" > "$TARGET_FILE"

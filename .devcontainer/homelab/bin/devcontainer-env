@@ -1,0 +1,76 @@
+#!/bin/bash
+set -e
+
+ENV_FILE="/opt/work/env.sh"
+BASHRC="/root/.bashrc"
+ENV_LINE="[ -f $ENV_FILE ] && source $ENV_FILE && devcontainer-npmrc"
+
+echo "Setting up environment variables from $ENV_FILE..."
+
+if [ ! -f "$ENV_FILE" ]; then
+  echo "ENV file not found, creating default..."
+  tee "$ENV_FILE" > /dev/null <<EOF
+export GITLAB_TOKEN=FILL_ME
+export JIRA_API_TOKEN=FILL_ME
+
+export TURBO_TEAM=FILL_ME
+export TURBO_TOKEN=FILL_ME
+
+export GIT_COMMITTER_NAME=FILL_ME
+export GIT_AUTHOR_EMAIL=FILL_ME
+export GIT_COMMITTER_EMAIL=FILL_ME
+export GIT_AUTHOR_NAME=FILL_ME
+EOF
+fi
+
+chmod +x "$ENV_FILE"
+source $ENV_FILE
+
+START_MARK="# >>> work env loader >>>"
+END_MARK="# <<< work env loader <<<"
+
+BLOCK="$START_MARK
+$ENV_LINE
+$END_MARK"
+
+echo "Updating $BASHRC..."
+
+# remove existing block if it exists
+if grep -q "$START_MARK" "$BASHRC"; then
+  echo "Existing block found, removing..."
+  tmp=$(mktemp)
+  awk -v start="$START_MARK" -v end="$END_MARK" '
+    $0 == start {skip=1; next}
+    $0 == end {skip=0; next}
+    !skip {print}
+  ' "$BASHRC" > "$tmp"
+  mv "$tmp" "$BASHRC"
+fi
+
+# append new block
+echo "" >> "$BASHRC"
+echo "$BLOCK" >> "$BASHRC"
+
+source "$BASHRC"
+
+# Setup zsh too
+ZSHRC="/root/.zshrc"
+echo "Updating $ZSHRC..."
+
+# remove existing block if it exists
+if grep -q "$START_MARK" "$ZSHRC"; then
+  echo "Existing block found in $ZSHRC, removing..."
+  tmp=$(mktemp)
+  awk -v start="$START_MARK" -v end="$END_MARK" '
+    $0 == start {skip=1; next}
+    $0 == end {skip=0; next}
+    !skip {print}
+  ' "$ZSHRC" > "$tmp"
+  mv "$tmp" "$ZSHRC"
+fi
+
+# append new block
+echo "" >> "$ZSHRC"
+echo "$BLOCK" >> "$ZSHRC"
+
+echo "Done."

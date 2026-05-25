@@ -1,0 +1,31 @@
+#!/bin/bash
+set -e
+
+# Clone zsh-autosuggestions plugin
+if [ ! -d "/root/.oh-my-zsh/custom/plugins/zsh-autosuggestions" ]; then
+  echo "Cloning zsh-autosuggestions plugin..."
+  git clone https://github.com/zsh-users/zsh-autosuggestions /root/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+fi
+
+if [ ! -d "/root/.oh-my-zsh/custom/abhiyan.zsh" ]; then
+  echo "Cloning abhiyan.zsh plugin..."
+  git clone https://github.com/abhiyandhakal/abhiyan.zsh.git /root/.oh-my-zsh/custom/abhiyan.zsh
+fi
+
+tee /root/.zshrc > /dev/null <<'EOF'
+export ZSH="$HOME/.oh-my-zsh"
+
+ZSH_THEME="af-magic"
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#ff00ff,bg=cyan,bold,underline"
+
+plugins=(
+    zsh-autosuggestions
+    git
+    history
+)
+
+source $ZSH/oh-my-zsh.sh
+source $ZSH/custom/abhiyan.zsh/zsh-theme.plugin.zsh
+
+zstyle ':omz:update' mode disabled
+EOF
