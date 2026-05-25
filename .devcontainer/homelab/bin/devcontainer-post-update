@@ -1,8 +1,5 @@
 #!/bin/bash
 set -e
 
-echo "Running post-update setup for devcontainer..."
-npm install -g typescript audit-ci
-
 echo "ZSHRC setup..."
 devcontainer-zshrc

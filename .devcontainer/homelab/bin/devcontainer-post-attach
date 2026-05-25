@@ -2,4 +2,3 @@
 set -e
 
 echo "Running post-attach setup for devcontainer..."
-devcontainer-token-rotate
