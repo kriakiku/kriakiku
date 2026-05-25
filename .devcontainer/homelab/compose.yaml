@@ -1,9 +1,16 @@
 name: "homelab"
 services:
+
+  binfmt:
+    image: tonistiigi/binfmt
+    privileged: true
+    command: --install amd64
+
   homelab:
     container_name: "homelab"
     build:
       dockerfile: Dockerfile
+    privileged: true
     volumes:
       - /opt/homelab:/opt/homelab
       - share:/usr/local/share
