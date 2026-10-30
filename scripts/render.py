@@ -8,6 +8,8 @@ OUT = ROOT / "assets"
 GREEN = "#3ddc84"
 ORANGE = "#ff7a1a"
 AMBER = "#ffb547"
+FUCHSIA = "#d946ef"
+FUCHSIA_SOFT = "#f0abfc"
 
 HOLTDROID = (
     '<g fill="none"><path d="M8 40c0-13.3 10.7-24 24-24s24 10.7 24 24v8H8z" fill="#8a5a3c"/>'
@@ -87,7 +89,7 @@ def background(w, h, glows, strip=None):
     return f"""<defs>
   <clipPath id="frame"><rect width="{w}" height="{h}" rx="24"/></clipPath>
   <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-    <stop offset="0" stop-color="#0f0e0c"/><stop offset="1" stop-color="#18130f"/>
+    <stop offset="0" stop-color="#0f0d12"/><stop offset="1" stop-color="#18121b"/>
   </linearGradient>
   <pattern id="dots" width="32" height="32" patternUnits="userSpaceOnUse">
     <circle cx="2" cy="2" r="1.4" fill="#fff" fill-opacity=".05"/>
@@ -105,11 +107,11 @@ def background(w, h, glows, strip=None):
 def banner():
     w, h = 1280, 420
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">
-{background(w, h, [(900, 230, 300, GREEN), (1140, 230, 300, ORANGE)], [GREEN, ORANGE])}
-<text x="80" y="128" font-family="{MONO}" font-size="28" fill="#9c8d80"><tspan fill="{ORANGE}">~/</tspan>kriakiku</text>
-<text x="76" y="218" font-family="{FONT}" font-size="88" font-weight="700" fill="#fbf6f1">Jonas D.</text>
-<text x="80" y="274" font-family="{FONT}" font-size="34" fill="#cdbfb2">Web developer from Vilnius, Lithuania.</text>
-<text x="80" y="318" font-family="{FONT}" font-size="24" fill="#958577">Simplifying the world around me by overengineering it :D</text>
+{background(w, h, [(260, 220, 420, FUCHSIA), (900, 230, 260, GREEN), (1140, 230, 260, ORANGE)], [FUCHSIA, FUCHSIA_SOFT])}
+<text x="80" y="128" font-family="{MONO}" font-size="28" fill="#9b92a3"><tspan fill="{FUCHSIA}">~/</tspan>kriakiku</text>
+<text x="76" y="218" font-family="{FONT}" font-size="88" font-weight="700" fill="#faf7fc">Jonas D.</text>
+<text x="80" y="274" font-family="{FONT}" font-size="34" fill="#cdc5d4">Web developer from Vilnius, Lithuania.</text>
+<text x="80" y="318" font-family="{FONT}" font-size="24" fill="#958c9e">Simplifying the world around me by overengineering it :D</text>
 <g transform="translate(770 120) scale(3.6)">{HOLTDROID}</g>
 <g transform="translate(1010 120) scale(3.6)">{HOLTKEEPER}</g>
 <text x="885" y="370" text-anchor="middle" font-family="{MONO}" font-size="20" fill="#7d8f86">holtdroid</text>
@@ -123,7 +125,7 @@ def chips(x, y, items, accent, size=28):
         width = 36 + len(c) * size * 0.62
         out.append(
             f'<rect x="{cx}" y="{y}" width="{width}" height="{size * 2}" rx="{size}" fill="{accent}" fill-opacity=".14" stroke="{accent}" stroke-opacity=".5" stroke-width="1.5"/>'
-            f'<text x="{cx + width / 2}" y="{y + size * 1.36}" text-anchor="middle" font-family="{FONT}" font-size="{size}" font-weight="500" fill="#f1e8df">{c}</text>'
+            f'<text x="{cx + width / 2}" y="{y + size * 1.36}" text-anchor="middle" font-family="{FONT}" font-size="{size}" font-weight="500" fill="#f1ebf5">{c}</text>'
         )
         cx += width + 14
     return "".join(out)
@@ -132,13 +134,13 @@ def chips(x, y, items, accent, size=28):
 def card(p):
     w, h = 1200, 640
     lines = "".join(
-        f'<text x="64" y="{370 + i * 54}" font-family="{FONT}" font-size="40" fill="#c9bcb0">{l}</text>' for i, l in enumerate(p["lines"])
+        f'<text x="64" y="{370 + i * 54}" font-family="{FONT}" font-size="40" fill="#c8c0cf">{l}</text>' for i, l in enumerate(p["lines"])
     )
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">
 {background(w, h, [(170, 150, 420, p["accent"])], [p["accent"], p["accent"]])}
 <g transform="translate(48 30) scale(3.4)">{p["icon"]}</g>
-<text x="306" y="118" font-family="{MONO}" font-size="30" fill="{p["accent"]}">{p["name"]}/<tspan fill="#9c8d80">{p["name"]}</tspan></text>
-<text x="302" y="206" font-family="{FONT}" font-size="88" font-weight="700" fill="#fbf6f1">{p["title"]}</text>
+<text x="306" y="118" font-family="{MONO}" font-size="30" fill="{p["accent"]}">{p["name"]}/<tspan fill="#9b92a3">{p["name"]}</tspan></text>
+<text x="302" y="206" font-family="{FONT}" font-size="88" font-weight="700" fill="#faf7fc">{p["title"]}</text>
 <text x="306" y="258" font-family="{FONT}" font-size="34" fill="{p["accent"]}" fill-opacity=".9">{p["tagline"]}</text>
 {lines}
 {chips(64, 524, p["chips"], p["accent"])}
@@ -164,9 +166,9 @@ def stack():
         y = r * 70
         for name, color, width in items:
             out.append(
-                f'<rect x="{cx}" y="{y}" width="{width}" height="56" rx="28" fill="#17130f" stroke="{color}" stroke-opacity=".55" stroke-width="1.5"/>'
+                f'<rect x="{cx}" y="{y}" width="{width}" height="56" rx="28" fill="#17121b" stroke="{color}" stroke-opacity=".55" stroke-width="1.5"/>'
                 f'<circle cx="{cx + 30}" cy="{y + 28}" r="8" fill="{color}"/>'
-                f'<text x="{cx + 48}" y="{y + 36}" font-family="{FONT}" font-size="{size}" font-weight="500" fill="#efe6dd">{name}</text>'
+                f'<text x="{cx + 48}" y="{y + 36}" font-family="{FONT}" font-size="{size}" font-weight="500" fill="#efeaf3">{name}</text>'
             )
             cx += width + gap
     return f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">{"".join(out)}</svg>'

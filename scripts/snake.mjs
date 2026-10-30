@@ -11,14 +11,14 @@ const themes = {
   "snake.svg": {
     colorDotBorder: "#1b1f230a",
     colorEmpty: "#ebedf0",
-    colorDots: ["#ebedf0", "#ffd8b0", "#ffb070", "#ff8a33", "#e8590c"],
-    colorSnake: "#c2410c",
+    colorDots: ["#ebedf0", "#f5d0fe", "#f0abfc", "#e879f9", "#c026d3"],
+    colorSnake: "#86198f",
   },
   "snake-dark.svg": {
     colorDotBorder: "#ffffff08",
     colorEmpty: "#161b22",
-    colorDots: ["#161b22", "#4a2410", "#8a3d0f", "#d95a0b", "#ff7a1a"],
-    colorSnake: "#ffb547",
+    colorDots: ["#161b22", "#4a1450", "#86198f", "#c026d3", "#e879f9"],
+    colorSnake: "#f0abfc",
   },
 };
 

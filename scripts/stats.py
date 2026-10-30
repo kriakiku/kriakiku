@@ -14,11 +14,11 @@ SKIP_LANGUAGES = {"Dockerfile", "Makefile", "Shell", "HTML", "CSS", "Just", "Sma
 
 FONT = "Helvetica Neue, Helvetica, Arial, sans-serif"
 MONO = "Menlo, SF Mono, monospace"
-ORANGE = "#ff7a1a"
-AMBER = "#ffb547"
+ACCENT = "#d946ef"
+ACCENT_SOFT = "#f0abfc"
 GREEN = "#3ddc84"
-VIOLET = "#7759c2"
-LILAC = "#a989f5"
+CYAN = "#0891b2"
+CYAN_SOFT = "#67e8f9"
 
 REPOS = "nodes { isFork stargazerCount languages(first: 10, orderBy: {field: SIZE, direction: DESC}) { edges { size node { name color } } } }"
 QUERY = (
@@ -107,7 +107,7 @@ def tile(x, y, value, label, accent):
     return (
         f'<rect x="{x}" y="{y}" width="278" height="112" rx="18" fill="#fff" fill-opacity=".035" stroke="#fff" stroke-opacity=".07"/>'
         f'<text x="{x + 24}" y="{y + 62}" font-family="{FONT}" font-size="46" font-weight="700" fill="{accent}">{value}</text>'
-        f'<text x="{x + 24}" y="{y + 92}" font-family="{FONT}" font-size="19" fill="#a8988a">{label}</text>'
+        f'<text x="{x + 24}" y="{y + 92}" font-family="{FONT}" font-size="19" fill="#a39aab">{label}</text>'
     )
 
 
@@ -117,10 +117,10 @@ def render(s):
         tile(40 + i * 302, 84, v, l, a)
         for i, (v, l, a) in enumerate(
             [
-                (f"{s['github'] + s['gitlab']:,}", "contributions, last year", ORANGE),
-                (f"{s['current']}d", "current streak", AMBER),
-                (f"{s['longest']}d", "longest streak", AMBER),
-                (f"{s['stars']}★ · {s['repos']}", "stars · public repos", GREEN),
+                (f"{s['github'] + s['gitlab']:,}", "contributions, last year", ACCENT),
+                (f"{s['current']}d", "current streak", ACCENT_SOFT),
+                (f"{s['longest']}d", "longest streak", ACCENT_SOFT),
+                (f"{s['stars']}★ · {s['repos']}", "stars · public repos", CYAN_SOFT),
             ]
         )
     )
@@ -137,8 +137,8 @@ def render(s):
             f'<clipPath id="m{i}"><rect x="{x}" y="{430 - bh}" width="40" height="{bh}" rx="8"/></clipPath>'
             f'<g clip-path="url(#m{i})"><rect x="{x}" y="{430 - bh}" width="40" height="{bh}" fill="url(#bar)"/>'
             f'<rect x="{x}" y="{430 - lh}" width="40" height="{lh}" fill="url(#lab)"/></g>'
-            f'<text x="{x + 20}" y="458" text-anchor="middle" font-family="{FONT}" font-size="16" fill="#8a7b6e">{name}</text>'
-            f'<text x="{x + 20}" y="{422 - bh}" text-anchor="middle" font-family="{FONT}" font-size="15" fill="#c9bcb0">{count}</text>'
+            f'<text x="{x + 20}" y="458" text-anchor="middle" font-family="{FONT}" font-size="16" fill="#8a8193">{name}</text>'
+            f'<text x="{x + 20}" y="{422 - bh}" text-anchor="middle" font-family="{FONT}" font-size="15" fill="#c8c0cf">{count}</text>'
         )
 
     total = sum(size for _, size, _ in s["languages"]) or 1
@@ -150,8 +150,8 @@ def render(s):
         cx, cy = 740 + (i % 2) * 250, 320 + (i // 2) * 44
         legend.append(
             f'<circle cx="{cx + 8}" cy="{cy - 6}" r="8" fill="{color}"/>'
-            f'<text x="{cx + 26}" y="{cy}" font-family="{FONT}" font-size="21" fill="#e6dcd2">{name}</text>'
-            f'<text x="{cx + 230}" y="{cy}" text-anchor="end" font-family="{MONO}" font-size="18" fill="#8a7b6e">{100 * size / total:.1f}%</text>'
+            f'<text x="{cx + 26}" y="{cy}" font-family="{FONT}" font-size="21" fill="#e8e2ee">{name}</text>'
+            f'<text x="{cx + 230}" y="{cy}" text-anchor="end" font-family="{MONO}" font-size="18" fill="#8a8193">{100 * size / total:.1f}%</text>'
         )
 
     updated = datetime.date.today().isoformat()
@@ -159,29 +159,29 @@ def render(s):
 <defs>
   <clipPath id="frame"><rect width="{w}" height="{h}" rx="24"/></clipPath>
   <clipPath id="langs"><rect x="740" y="250" width="500" height="22" rx="11"/></clipPath>
-  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0f0e0c"/><stop offset="1" stop-color="#18130f"/></linearGradient>
-  <linearGradient id="bar" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="{ORANGE}"/><stop offset="1" stop-color="{AMBER}"/></linearGradient>
-  <linearGradient id="lab" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="{VIOLET}"/><stop offset="1" stop-color="{LILAC}"/></linearGradient>
-  <radialGradient id="glow" cx="300" cy="420" r="420" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="{ORANGE}" stop-opacity=".16"/><stop offset="1" stop-color="{ORANGE}" stop-opacity="0"/></radialGradient>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0f0d12"/><stop offset="1" stop-color="#18121b"/></linearGradient>
+  <linearGradient id="bar" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="{ACCENT}"/><stop offset="1" stop-color="{ACCENT_SOFT}"/></linearGradient>
+  <linearGradient id="lab" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="{CYAN}"/><stop offset="1" stop-color="{CYAN_SOFT}"/></linearGradient>
+  <radialGradient id="glow" cx="300" cy="420" r="420" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="{ACCENT}" stop-opacity=".16"/><stop offset="1" stop-color="{ACCENT}" stop-opacity="0"/></radialGradient>
   <pattern id="dots" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.4" fill="#fff" fill-opacity=".05"/></pattern>
 </defs>
 <g clip-path="url(#frame)">
 <rect width="{w}" height="{h}" fill="url(#bg)"/><rect width="{w}" height="{h}" fill="url(#dots)"/><rect width="{w}" height="{h}" fill="url(#glow)"/>
 </g>
-<text x="40" y="54" font-family="{MONO}" font-size="22" fill="{ORANGE}">~/kriakiku <tspan fill="#9c8d80">· stats</tspan></text>
-<text x="1240" y="54" text-anchor="end" font-family="{MONO}" font-size="18" fill="#6f6359">updated {updated}</text>
+<text x="40" y="54" font-family="{MONO}" font-size="22" fill="{ACCENT}">~/kriakiku <tspan fill="#9b92a3">· stats</tspan></text>
+<text x="1240" y="54" text-anchor="end" font-family="{MONO}" font-size="18" fill="#6d6575">updated {updated}</text>
 {tiles}
-<text x="40" y="250" font-family="{FONT}" font-size="20" font-weight="600" fill="#e6dcd2">Contributions by month</text>
-<circle cx="388" cy="243" r="7" fill="{ORANGE}"/><text x="402" y="250" font-family="{FONT}" font-size="18" fill="#c9bcb0">GitHub <tspan fill="#8a7b6e">{s['github']:,}</tspan></text>
-<circle cx="548" cy="243" r="7" fill="{LILAC}"/><text x="562" y="250" font-family="{FONT}" font-size="18" fill="#c9bcb0">GitLab <tspan fill="#8a7b6e">{s['gitlab']:,}</tspan></text>
+<text x="40" y="250" font-family="{FONT}" font-size="20" font-weight="600" fill="#e8e2ee">Contributions by month</text>
+<circle cx="388" cy="243" r="7" fill="{ACCENT}"/><text x="402" y="250" font-family="{FONT}" font-size="18" fill="#c8c0cf">GitHub <tspan fill="#8a8193">{s['github']:,}</tspan></text>
+<circle cx="548" cy="243" r="7" fill="{CYAN_SOFT}"/><text x="562" y="250" font-family="{FONT}" font-size="18" fill="#c8c0cf">GitLab <tspan fill="#8a8193">{s['gitlab']:,}</tspan></text>
 {"".join(bars)}
-<text x="740" y="230" font-family="{FONT}" font-size="20" font-weight="600" fill="#e6dcd2">Languages</text>
+<text x="740" y="230" font-family="{FONT}" font-size="20" font-weight="600" fill="#e8e2ee">Languages</text>
 <g clip-path="url(#langs)">{"".join(segments)}</g>
 {"".join(legend)}
 </svg>"""
 
 
-HEAT = ["#231b15", "#4a2410", "#8a3d0f", "#d95a0b", ORANGE, AMBER]
+HEAT = ["#1f1a24", "#4a1450", "#86198f", "#c026d3", ACCENT, ACCENT_SOFT]
 
 
 def activity(s):
@@ -199,14 +199,14 @@ def activity(s):
         if month not in seen and int(week[0][8:]) <= 7:
             seen.add(month)
             name = datetime.date.fromisoformat(week[0]).strftime("%b")
-            months.append(f'<text x="{x}" y="{y0 - 14}" font-family="{FONT}" font-size="16" fill="#8a7b6e">{name}</text>')
+            months.append(f'<text x="{x}" y="{y0 - 14}" font-family="{FONT}" font-size="16" fill="#8a8193">{name}</text>')
         for date in week:
             row = datetime.date.fromisoformat(date).isoweekday() % 7
             cells.append(
                 f'<rect class="c" style="animation-delay:{i * 0.03:.2f}s" x="{x}" y="{y0 + row * step}" width="{cell}" height="{cell}" rx="4" fill="{HEAT[level(s["days"].get(date, 0))]}"/>'
             )
     labels = "".join(
-        f'<text x="88" y="{y0 + r * step + 13}" text-anchor="end" font-family="{FONT}" font-size="14" fill="#6f6359">{n}</text>'
+        f'<text x="88" y="{y0 + r * step + 13}" text-anchor="end" font-family="{FONT}" font-size="14" fill="#6d6575">{n}</text>'
         for r, n in ((1, "Mon"), (3, "Wed"), (5, "Fri"))
     )
     gx = x0 + len(s["weeks"]) * step - 4
@@ -222,19 +222,19 @@ def activity(s):
 <defs>
   <clipPath id="frame"><rect width="{w}" height="{h}" rx="24"/></clipPath>
   <clipPath id="grid"><rect x="{x0}" y="{y0}" width="{gx - x0}" height="{7 * step - 4}"/></clipPath>
-  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0f0e0c"/><stop offset="1" stop-color="#18130f"/></linearGradient>
-  <linearGradient id="beam" x1="0" x2="1"><stop offset="0" stop-color="{AMBER}" stop-opacity="0"/><stop offset=".5" stop-color="{AMBER}" stop-opacity=".22"/><stop offset="1" stop-color="{AMBER}" stop-opacity="0"/></linearGradient>
-  <radialGradient id="glow" cx="{gx - 120}" cy="190" r="520" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="{ORANGE}" stop-opacity=".14"/><stop offset="1" stop-color="{ORANGE}" stop-opacity="0"/></radialGradient>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0f0d12"/><stop offset="1" stop-color="#18121b"/></linearGradient>
+  <linearGradient id="beam" x1="0" x2="1"><stop offset="0" stop-color="{ACCENT_SOFT}" stop-opacity="0"/><stop offset=".5" stop-color="{ACCENT_SOFT}" stop-opacity=".22"/><stop offset="1" stop-color="{ACCENT_SOFT}" stop-opacity="0"/></linearGradient>
+  <radialGradient id="glow" cx="{gx - 120}" cy="190" r="520" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="{ACCENT}" stop-opacity=".14"/><stop offset="1" stop-color="{ACCENT}" stop-opacity="0"/></radialGradient>
 </defs>
 <g clip-path="url(#frame)"><rect width="{w}" height="{h}" fill="url(#bg)"/><rect width="{w}" height="{h}" fill="url(#glow)"/></g>
-<text x="40" y="54" font-family="{MONO}" font-size="22" fill="{ORANGE}">~/kriakiku <tspan fill="#9c8d80">· activity</tspan></text>
-<text x="1240" y="54" text-anchor="end" font-family="{FONT}" font-size="18" fill="#c9bcb0">{total:,} contributions <tspan fill="#8a7b6e">· GitHub + GitLab</tspan></text>
+<text x="40" y="54" font-family="{MONO}" font-size="22" fill="{ACCENT}">~/kriakiku <tspan fill="#9b92a3">· activity</tspan></text>
+<text x="1240" y="54" text-anchor="end" font-family="{FONT}" font-size="18" fill="#c8c0cf">{total:,} contributions <tspan fill="#8a8193">· GitHub + GitLab</tspan></text>
 {"".join(months)}{labels}
 {"".join(cells)}
 <g clip-path="url(#grid)"><rect class="scan" x="{x0 - 60}" y="{y0}" width="60" height="{7 * step - 4}" fill="url(#beam)"/></g>
-<text x="{gx - 6 * 21 - 46}" y="304" text-anchor="end" font-family="{FONT}" font-size="15" fill="#8a7b6e">Less</text>
+<text x="{gx - 6 * 21 - 46}" y="304" text-anchor="end" font-family="{FONT}" font-size="15" fill="#8a8193">Less</text>
 {scale}
-<text x="{gx}" y="304" text-anchor="end" font-family="{FONT}" font-size="15" fill="#8a7b6e">More</text>
+<text x="{gx}" y="304" text-anchor="end" font-family="{FONT}" font-size="15" fill="#8a8193">More</text>
 </svg>"""
 
 
