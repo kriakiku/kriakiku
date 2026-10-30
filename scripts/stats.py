@@ -17,6 +17,8 @@ MONO = "Menlo, SF Mono, monospace"
 ORANGE = "#ff7a1a"
 AMBER = "#ffb547"
 GREEN = "#3ddc84"
+VIOLET = "#7759c2"
+LILAC = "#a989f5"
 
 REPOS = "nodes { isFork stargazerCount languages(first: 10, orderBy: {field: SIZE, direction: DESC}) { edges { size node { name color } } } }"
 QUERY = (
@@ -43,8 +45,12 @@ def fetch():
     return body["data"]
 
 
-def streaks(days):
-    counts = [d["contributionCount"] for d in days]
+def fetch_gitlab():
+    with urllib.request.urlopen(f"https://gitlab.com/users/{LOGIN}/calendar.json") as res:
+        return json.load(res)
+
+
+def streaks(counts):
     longest = run = 0
     for c in counts:
         run = run + 1 if c else 0
@@ -58,10 +64,10 @@ def streaks(days):
     return current, longest
 
 
-def collect(data):
+def collect(data, gitlab):
     user = data["user"]
     calendar = user["contributionsCollection"]["contributionCalendar"]
-    days = [d for w in calendar["weeks"] for d in w["contributionDays"]]
+    github = {d["date"]: d["contributionCount"] for w in calendar["weeks"] for d in w["contributionDays"]}
     repos = [r for r in user["repositories"]["nodes"] if not r["isFork"]]
     repo_count = user["repositories"]["totalCount"]
     for o in ORGS:
@@ -75,12 +81,17 @@ def collect(data):
             if name not in SKIP_LANGUAGES:
                 languages[name] += e["size"]
                 colors[name] = e["node"]["color"] or "#888"
+    first = datetime.date.fromisoformat(min(github))
+    last = datetime.date.fromisoformat(max(github))
+    dates = [(first + datetime.timedelta(days=i)).isoformat() for i in range((last - first).days + 1)]
     months = collections.OrderedDict()
-    for d in days:
-        months[d["date"][:7]] = months.get(d["date"][:7], 0) + d["contributionCount"]
-    current, longest = streaks(days)
+    for d in dates:
+        hub, lab = months.get(d[:7], (0, 0))
+        months[d[:7]] = (hub + github.get(d, 0), lab + gitlab.get(d, 0))
+    current, longest = streaks([github.get(d, 0) + gitlab.get(d, 0) for d in dates])
     return {
-        "total": calendar["totalContributions"],
+        "github": sum(github.values()),
+        "gitlab": sum(gitlab.get(d, 0) for d in dates),
         "current": current,
         "longest": longest,
         "stars": sum(r["stargazerCount"] for r in repos),
@@ -104,7 +115,7 @@ def render(s):
         tile(40 + i * 302, 84, v, l, a)
         for i, (v, l, a) in enumerate(
             [
-                (f"{s['total']:,}", "contributions, last year", ORANGE),
+                (f"{s['github'] + s['gitlab']:,}", "contributions, last year", ORANGE),
                 (f"{s['current']}d", "current streak", AMBER),
                 (f"{s['longest']}d", "longest streak", AMBER),
                 (f"{s['stars']}★ · {s['repos']}", "stars · public repos", GREEN),
@@ -112,14 +123,18 @@ def render(s):
         )
     )
 
-    peak = max((c for _, c in s["months"]), default=0) or 1
+    peak = max((hub + lab for _, (hub, lab) in s["months"]), default=0) or 1
     bars = []
-    for i, (month, count) in enumerate(s["months"]):
+    for i, (month, (hub, lab)) in enumerate(s["months"]):
+        count = hub + lab
         bh = max(4, 150 * count / peak)
+        lh = bh * lab / count if count else 0
         x = 40 + i * 56
         name = datetime.date(int(month[:4]), int(month[5:]), 1).strftime("%b")
         bars.append(
-            f'<rect x="{x}" y="{430 - bh}" width="40" height="{bh}" rx="8" fill="url(#bar)"/>'
+            f'<clipPath id="m{i}"><rect x="{x}" y="{430 - bh}" width="40" height="{bh}" rx="8"/></clipPath>'
+            f'<g clip-path="url(#m{i})"><rect x="{x}" y="{430 - bh}" width="40" height="{bh}" fill="url(#bar)"/>'
+            f'<rect x="{x}" y="{430 - lh}" width="40" height="{lh}" fill="url(#lab)"/></g>'
             f'<text x="{x + 20}" y="458" text-anchor="middle" font-family="{FONT}" font-size="16" fill="#8a7b6e">{name}</text>'
             f'<text x="{x + 20}" y="{422 - bh}" text-anchor="middle" font-family="{FONT}" font-size="15" fill="#c9bcb0">{count}</text>'
         )
@@ -144,6 +159,7 @@ def render(s):
   <clipPath id="langs"><rect x="740" y="250" width="500" height="22" rx="11"/></clipPath>
   <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0f0e0c"/><stop offset="1" stop-color="#18130f"/></linearGradient>
   <linearGradient id="bar" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="{ORANGE}"/><stop offset="1" stop-color="{AMBER}"/></linearGradient>
+  <linearGradient id="lab" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="{VIOLET}"/><stop offset="1" stop-color="{LILAC}"/></linearGradient>
   <radialGradient id="glow" cx="300" cy="420" r="420" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="{ORANGE}" stop-opacity=".16"/><stop offset="1" stop-color="{ORANGE}" stop-opacity="0"/></radialGradient>
   <pattern id="dots" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.4" fill="#fff" fill-opacity=".05"/></pattern>
 </defs>
@@ -154,6 +170,8 @@ def render(s):
 <text x="1240" y="54" text-anchor="end" font-family="{MONO}" font-size="18" fill="#6f6359">updated {updated}</text>
 {tiles}
 <text x="40" y="250" font-family="{FONT}" font-size="20" font-weight="600" fill="#e6dcd2">Contributions by month</text>
+<circle cx="388" cy="243" r="7" fill="{ORANGE}"/><text x="402" y="250" font-family="{FONT}" font-size="18" fill="#c9bcb0">GitHub <tspan fill="#8a7b6e">{s['github']:,}</tspan></text>
+<circle cx="548" cy="243" r="7" fill="{LILAC}"/><text x="562" y="250" font-family="{FONT}" font-size="18" fill="#c9bcb0">GitLab <tspan fill="#8a7b6e">{s['gitlab']:,}</tspan></text>
 {"".join(bars)}
 <text x="740" y="230" font-family="{FONT}" font-size="20" font-weight="600" fill="#e6dcd2">Languages</text>
 <g clip-path="url(#langs)">{"".join(segments)}</g>
@@ -163,4 +181,4 @@ def render(s):
 
 out = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else "dist/stats.svg")
 out.parent.mkdir(parents=True, exist_ok=True)
-out.write_text(render(collect(fetch())))
+out.write_text(render(collect(fetch(), fetch_gitlab())))

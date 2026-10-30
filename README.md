@@ -41,7 +41,7 @@ Each one got its own organization, its own otter and its own holt.
 ## Activity
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/kriakiku/kriakiku/output/stats.svg" alt="Contributions, streaks, stars and languages">
+  <img src="https://raw.githubusercontent.com/kriakiku/kriakiku/output/stats.svg" alt="Contributions on GitHub and GitLab, streaks, stars and languages">
 </p>
 
 <p align="center">
@@ -57,4 +57,4 @@ Each one got its own organization, its own otter and its own holt.
 - Homelab as code: [homelab.nixos](https://github.com/kriakiku/homelab.nixos) · [homelab.k8s](https://github.com/kriakiku/homelab.k8s) · [homelab.ha](https://github.com/kriakiku/homelab.ha) · [homelab.temporal](https://github.com/kriakiku/homelab.temporal) · [dotfiles](https://github.com/kriakiku/dotfiles)
 - macOS: [MeetCallRecorder](https://github.com/kriakiku/MeetCallRecorder) · [speakr-asr-wrapper](https://github.com/kriakiku/speakr-asr-wrapper)
 
-<sub>Widgets are rendered by this repository's own workflow every night: <code>scripts/stats.py</code> and <a href="https://github.com/Platane/snk">Platane/snk</a>.</sub>
+<sub>Widgets are rendered by this repository's own workflow every night: <code>scripts/stats.py</code> (GitHub plus daily totals from the public GitLab calendar) and <a href="https://github.com/Platane/snk">Platane/snk</a>.</sub>
