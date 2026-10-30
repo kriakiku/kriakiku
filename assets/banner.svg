@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="420" viewBox="0 0 1280 420">
+<defs>
+  <clipPath id="frame"><rect width="1280" height="420" rx="24"/></clipPath>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#0f0e0c"/><stop offset="1" stop-color="#18130f"/>
+  </linearGradient>
+  <pattern id="dots" width="32" height="32" patternUnits="userSpaceOnUse">
+    <circle cx="2" cy="2" r="1.4" fill="#fff" fill-opacity=".05"/>
+  </pattern>
+  <radialGradient id="glow0" cx="900" cy="230" r="300" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#3ddc84" stop-opacity=".2"/><stop offset="1" stop-color="#3ddc84" stop-opacity="0"/></radialGradient><radialGradient id="glow1" cx="1140" cy="230" r="300" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff7a1a" stop-opacity=".2"/><stop offset="1" stop-color="#ff7a1a" stop-opacity="0"/></radialGradient><linearGradient id="bar" x1="0" x2="1"><stop offset="0" stop-color="#3ddc84"/><stop offset="1" stop-color="#ff7a1a"/></linearGradient>
+</defs>
+<g clip-path="url(#frame)">
+<rect width="1280" height="420" fill="url(#bg)"/>
+<rect width="1280" height="420" fill="url(#dots)"/>
+<rect width="1280" height="420" fill="url(#glow0)"/><rect width="1280" height="420" fill="url(#glow1)"/>
+<rect y="410" width="1280" height="10" fill="url(#bar)"/>
+</g>
+<text x="80" y="128" font-family="Menlo, SF Mono, monospace" font-size="28" fill="#9c8d80"><tspan fill="#ff7a1a">~/</tspan>kriakiku</text>
+<text x="76" y="218" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="88" font-weight="700" fill="#fbf6f1">Jonas Danila</text>
+<text x="80" y="274" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="34" fill="#cdbfb2">Web developer from Vilnius, Lithuania.</text>
+<text x="80" y="318" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="24" fill="#958577">Building cozy holts for Androids and repositories.</text>
+<g transform="translate(770 120) scale(3.6)"><g fill="none"><path d="M8 40c0-13.3 10.7-24 24-24s24 10.7 24 24v8H8z" fill="#8a5a3c"/><circle cx="23" cy="32" r="3.5" fill="#1b1b1b"/><circle cx="41" cy="32" r="3.5" fill="#1b1b1b"/><path d="M20 16l-4-7M44 16l4-7" stroke="#3ddc84" stroke-width="4" stroke-linecap="round"/><ellipse cx="32" cy="39" rx="5" ry="3.5" fill="#d9b48f"/><circle cx="32" cy="38" r="1.8" fill="#1b1b1b"/><rect x="4" y="48" width="56" height="8" rx="4" fill="#3ddc84"/></g></g>
+<g transform="translate(1010 120) scale(3.6)"><g fill="none"><circle cx="13.5" cy="25.5" r="4.6" fill="#d95a0b"/><circle cx="50.5" cy="25.5" r="4.6" fill="#d95a0b"/><circle cx="13.5" cy="25.5" r="2" fill="#ffb547"/><circle cx="50.5" cy="25.5" r="2" fill="#ffb547"/><path d="M8 42c0-14 10.7-25 24-25s24 11 24 25v6H8z" fill="#ff7a1a"/><circle cx="23" cy="32" r="3.4" fill="#1a120c"/><circle cx="24.2" cy="30.8" r="1.1" fill="#fff"/><circle cx="41" cy="32" r="3.4" fill="#1a120c"/><circle cx="42.2" cy="30.8" r="1.1" fill="#fff"/><ellipse cx="32" cy="41.5" rx="12" ry="6.5" fill="#ffe6cc"/><path d="M21 39.5l-8.5-1.8M21 42.5l-8.5 1M43 39.5l8.5-1.8M43 42.5l8.5 1" stroke="#ffe6cc" stroke-opacity=".85" stroke-width="1.2" stroke-linecap="round"/><ellipse cx="32" cy="38.2" rx="3.3" ry="2.3" fill="#1a120c"/><path d="M28.6 41.6q1.7 2 3.4 0q1.7 2 3.4 0" stroke="#1a120c" stroke-width="1.4" stroke-linecap="round"/><circle cx="11" cy="52.5" r="5" stroke="#ffb547" stroke-width="3.4"/><rect x="15.5" y="50.8" width="42.5" height="3.4" rx="1.7" fill="#ffb547"/><rect x="45" y="52" width="3.4" height="6.5" rx="1.2" fill="#ffb547"/><rect x="51" y="52" width="3.4" height="4.8" rx="1.2" fill="#ffb547"/></g></g>
+<text x="885" y="370" text-anchor="middle" font-family="Menlo, SF Mono, monospace" font-size="20" fill="#7d8f86">holtdroid</text>
+<text x="1125" y="370" text-anchor="middle" font-family="Menlo, SF Mono, monospace" font-size="20" fill="#a08670">holtkeeper</text>
+</svg>
