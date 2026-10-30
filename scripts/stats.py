@@ -243,3 +243,7 @@ out.mkdir(parents=True, exist_ok=True)
 stats = collect(fetch(), fetch_gitlab())
 (out / "stats.svg").write_text(render(stats))
 (out / "activity.svg").write_text(activity(stats))
+active = sorted(c for c in stats["days"].values() if c)
+cuts = [active[int(len(active) * q)] for q in (0.25, 0.5, 0.75)] if active else []
+levels = {d: (1 + sum(c > t for t in cuts)) if c else 0 for d, c in stats["days"].items()}
+(out / "levels.json").write_text(json.dumps(levels))

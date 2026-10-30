@@ -107,9 +107,9 @@ def banner():
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">
 {background(w, h, [(900, 230, 300, GREEN), (1140, 230, 300, ORANGE)], [GREEN, ORANGE])}
 <text x="80" y="128" font-family="{MONO}" font-size="28" fill="#9c8d80"><tspan fill="{ORANGE}">~/</tspan>kriakiku</text>
-<text x="76" y="218" font-family="{FONT}" font-size="88" font-weight="700" fill="#fbf6f1">Jonas Danila</text>
+<text x="76" y="218" font-family="{FONT}" font-size="88" font-weight="700" fill="#fbf6f1">Jonas D.</text>
 <text x="80" y="274" font-family="{FONT}" font-size="34" fill="#cdbfb2">Web developer from Vilnius, Lithuania.</text>
-<text x="80" y="318" font-family="{FONT}" font-size="24" fill="#958577">Building cozy holts for Androids and repositories.</text>
+<text x="80" y="318" font-family="{FONT}" font-size="24" fill="#958577">Simplifying the world around me by overengineering it :D</text>
 <g transform="translate(770 120) scale(3.6)">{HOLTDROID}</g>
 <g transform="translate(1010 120) scale(3.6)">{HOLTKEEPER}</g>
 <text x="885" y="370" text-anchor="middle" font-family="{MONO}" font-size="20" fill="#7d8f86">holtdroid</text>
