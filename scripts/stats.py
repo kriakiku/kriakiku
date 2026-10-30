@@ -98,6 +98,8 @@ def collect(data, gitlab):
         "repos": repo_count,
         "languages": [(n, s, colors[n]) for n, s in languages.most_common(6)],
         "months": list(months.items())[-12:],
+        "weeks": [[d["date"] for d in w["contributionDays"]] for w in calendar["weeks"]],
+        "days": {d: github.get(d, 0) + gitlab.get(d, 0) for d in dates},
     }
 
 
@@ -179,6 +181,65 @@ def render(s):
 </svg>"""
 
 
-out = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else "dist/stats.svg")
-out.parent.mkdir(parents=True, exist_ok=True)
-out.write_text(render(collect(fetch(), fetch_gitlab())))
+HEAT = ["#231b15", "#4a2410", "#8a3d0f", "#d95a0b", ORANGE, AMBER]
+
+
+def activity(s):
+    w, h, step, cell, x0, y0 = 1280, 330, 21, 17, 100, 118
+    active = sorted(c for c in s["days"].values() if c)
+    cuts = [active[int(len(active) * q)] for q in (0.25, 0.5, 0.75, 0.9)] if active else []
+
+    def level(c):
+        return 0 if not c else 1 + sum(c > t for t in cuts)
+
+    cells, months, seen = [], [], set()
+    for i, week in enumerate(s["weeks"]):
+        x = x0 + i * step
+        month = week[0][:7]
+        if month not in seen and int(week[0][8:]) <= 7:
+            seen.add(month)
+            name = datetime.date.fromisoformat(week[0]).strftime("%b")
+            months.append(f'<text x="{x}" y="{y0 - 14}" font-family="{FONT}" font-size="16" fill="#8a7b6e">{name}</text>')
+        for date in week:
+            row = datetime.date.fromisoformat(date).isoweekday() % 7
+            cells.append(
+                f'<rect class="c" style="animation-delay:{i * 0.03:.2f}s" x="{x}" y="{y0 + row * step}" width="{cell}" height="{cell}" rx="4" fill="{HEAT[level(s["days"].get(date, 0))]}"/>'
+            )
+    labels = "".join(
+        f'<text x="88" y="{y0 + r * step + 13}" text-anchor="end" font-family="{FONT}" font-size="14" fill="#6f6359">{n}</text>'
+        for r, n in ((1, "Mon"), (3, "Wed"), (5, "Fri"))
+    )
+    gx = x0 + len(s["weeks"]) * step - 4
+    scale = "".join(f'<rect x="{gx - (6 - i) * 21 - 36}" y="290" width="{cell}" height="{cell}" rx="4" fill="{c}"/>' for i, c in enumerate(HEAT))
+    total = sum(s["days"].values())
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">
+<style>
+.c {{ animation: pop .5s ease-out both; transform-box: fill-box; transform-origin: center; }}
+@keyframes pop {{ from {{ opacity: 0; transform: scale(.2); }} }}
+.scan {{ animation: scan 7s 2s ease-in-out infinite; }}
+@keyframes scan {{ from {{ transform: translateX(0); opacity: 0; }} 10% {{ opacity: 1; }} 90% {{ opacity: 1; }} to {{ transform: translateX({gx - x0}px); opacity: 0; }} }}
+</style>
+<defs>
+  <clipPath id="frame"><rect width="{w}" height="{h}" rx="24"/></clipPath>
+  <clipPath id="grid"><rect x="{x0}" y="{y0}" width="{gx - x0}" height="{7 * step - 4}"/></clipPath>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0f0e0c"/><stop offset="1" stop-color="#18130f"/></linearGradient>
+  <linearGradient id="beam" x1="0" x2="1"><stop offset="0" stop-color="{AMBER}" stop-opacity="0"/><stop offset=".5" stop-color="{AMBER}" stop-opacity=".22"/><stop offset="1" stop-color="{AMBER}" stop-opacity="0"/></linearGradient>
+  <radialGradient id="glow" cx="{gx - 120}" cy="190" r="520" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="{ORANGE}" stop-opacity=".14"/><stop offset="1" stop-color="{ORANGE}" stop-opacity="0"/></radialGradient>
+</defs>
+<g clip-path="url(#frame)"><rect width="{w}" height="{h}" fill="url(#bg)"/><rect width="{w}" height="{h}" fill="url(#glow)"/></g>
+<text x="40" y="54" font-family="{MONO}" font-size="22" fill="{ORANGE}">~/kriakiku <tspan fill="#9c8d80">· activity</tspan></text>
+<text x="1240" y="54" text-anchor="end" font-family="{FONT}" font-size="18" fill="#c9bcb0">{total:,} contributions <tspan fill="#8a7b6e">· GitHub + GitLab</tspan></text>
+{"".join(months)}{labels}
+{"".join(cells)}
+<g clip-path="url(#grid)"><rect class="scan" x="{x0 - 60}" y="{y0}" width="60" height="{7 * step - 4}" fill="url(#beam)"/></g>
+<text x="{gx - 6 * 21 - 46}" y="304" text-anchor="end" font-family="{FONT}" font-size="15" fill="#8a7b6e">Less</text>
+{scale}
+<text x="{gx}" y="304" text-anchor="end" font-family="{FONT}" font-size="15" fill="#8a7b6e">More</text>
+</svg>"""
+
+
+out = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else "dist")
+out.mkdir(parents=True, exist_ok=True)
+stats = collect(fetch(), fetch_gitlab())
+(out / "stats.svg").write_text(render(stats))
+(out / "activity.svg").write_text(activity(stats))
