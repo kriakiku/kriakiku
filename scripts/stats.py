@@ -11,7 +11,7 @@ import urllib.request
 from render import FONT, MONO, R, THEMES, W, glow_layers, squircle
 
 LOGIN = "kriakiku"
-ORGS = ["holtdroid", "holtkeeper", "peleda-app", "holtmail", "archived-dreams"]
+ORGS = ["holtdroid", "holtkeeper", "peleda-app", "holtmail"]
 
 TRACK = {"dark": "#2fbf4a", "light": "#15803d"}
 RED = {"dark": "#f43f5e", "light": "#e11d48"}
