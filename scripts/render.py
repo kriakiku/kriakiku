@@ -178,7 +178,7 @@ def hero(t):
 <path d="{shape}" fill="none" stroke="{t["stroke"]}" stroke-width="1.5"/>
 <text x="46" y="56" font-family="{MONO}" font-size="16" fill="{meta}"><tspan fill="{HERO_ACCENT[t["name"]]}">~/</tspan>kriakiku</text>
 <text x="44" y="134" font-family="{FONT}" font-size="18" font-weight="600" fill="{HERO_ACCENT[t["name"]]}">{HERO_ROLE}</text>
-<text x="42" y="106" font-family="{FONT}" font-size="50" font-weight="700" fill="{t["title"]}">Jonas D.</text>
+<text x="42" y="106" font-family="{FONT}" font-size="50" font-weight="700" fill="{t["title"]}">Jonas Danilá</text>
 {body}
 </svg>'''
 
