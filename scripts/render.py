@@ -159,6 +159,39 @@ HERO_LINES = [
 ]
 
 
+PHI = (1 + 5 ** .5) / 2
+ICO = [(x, y, z) for a, b in ((1, PHI), (-1, PHI), (1, -PHI), (-1, -PHI)) for x, y, z in ((0, a, b), (a, b, 0), (b, 0, a))]
+ICO_EDGES = [(i, j) for i in range(12) for j in range(i + 1, 12) if abs(math.dist(ICO[i], ICO[j]) - 2) < 1e-6]
+SPIN, FRAMES = 48, 120
+
+
+def solid(cx, cy, radius, color):
+    tilt = math.radians(24)
+    frames = []
+    for f in range(FRAMES + 1):
+        a = 2 * math.pi * f / FRAMES
+        roll = tilt + 2 * a
+        points = []
+        for x, y, z in ICO:
+            x, z = x * math.cos(3 * a) + z * math.sin(3 * a), -x * math.sin(3 * a) + z * math.cos(3 * a)
+            y, z = y * math.cos(roll) - z * math.sin(roll), y * math.sin(roll) + z * math.cos(roll)
+            k = radius / 1.902 / (1 - z * .08)
+            points.append((cx + x * k, cy + y * k, z / 1.902))
+        frames.append(points)
+    times = ";".join(f"{f / FRAMES:.4f}" for f in range(FRAMES + 1))
+    edges = []
+    for i, j in ICO_EDGES:
+        shapes = ";".join(f"M{fr[i][0]:.1f} {fr[i][1]:.1f}L{fr[j][0]:.1f} {fr[j][1]:.1f}" for fr in frames)
+        depth = ";".join(f"{.18 + .72 * (1 + (fr[i][2] + fr[j][2]) / 2) / 2:.2f}" for fr in frames)
+        first = frames[0]
+        edges.append(
+            f'<path d="M{first[i][0]:.1f} {first[i][1]:.1f}L{first[j][0]:.1f} {first[j][1]:.1f}" stroke="{color}" stroke-width="1.3" stroke-linecap="round">'
+            f'<animate attributeName="d" values="{shapes}" keyTimes="{times}" dur="{SPIN}s" repeatCount="indefinite"/>'
+            f'<animate attributeName="stroke-opacity" values="{depth}" keyTimes="{times}" dur="{SPIN}s" repeatCount="indefinite"/></path>'
+        )
+    return "".join(edges)
+
+
 def hero(t):
     h = 276
     shape = squircle(1, 1, W - 2, h - 2, R)
@@ -181,6 +214,7 @@ def hero(t):
 <text x="44" y="134" font-family="{FONT}" font-size="18" font-weight="600" fill="{HERO_ACCENT[t["name"]]}">{HERO_ROLE}</text>
 <text x="42" y="106" font-family="{FONT}" font-size="50" font-weight="700" fill="{t["title"]}">Jonas Danilá</text>
 {body}
+{solid(796, 84, 43, HERO_ACCENT[t["name"]])}
 </svg>'''
 
 
