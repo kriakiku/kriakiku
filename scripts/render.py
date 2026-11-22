@@ -88,7 +88,7 @@ PROJECTS = [
 THEMES = {
     "dark": dict(name="dark", fv_glyph="#fbf0df", fv_slot="#141416", bg="#16131a", bg2="#1f1a24", stroke="#2c2632", title="#faf7fc", text="#bdb4c6", meta="#8a8094", glow=.34,
                  ev_tile="#1c1b24", ev_t1="#f2f0f8", ev_t2="#aba8b8", ev_rule="#3c3a49"),
-    "light": dict(name="light", fv_glyph="#433e4a", fv_slot="#fbf0df", bg="#ffffff", bg2="#f7f4f9", stroke="#e6e0ea", title="#1a1520", text="#4f4757", meta="#857c8e", glow=.2,
+    "light": dict(name="light", fv_glyph="#e2cfae", fv_slot="#141416", bg="#ffffff", bg2="#f7f4f9", stroke="#e6e0ea", title="#1a1520", text="#4f4757", meta="#857c8e", glow=.2,
                  ev_tile="#ffffff", ev_t1="#1f1d2b", ev_t2="#6a6778", ev_rule="#e4e2ee"),
 }
 
