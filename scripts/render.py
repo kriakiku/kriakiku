@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
+import math
 import pathlib
+import re
 import subprocess
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -7,7 +9,6 @@ OUT = ROOT / "assets"
 
 GREEN = "#3ddc84"
 ORANGE = "#ff7a1a"
-AMBER = "#ffb547"
 FUCHSIA = "#d946ef"
 FUCHSIA_SOFT = "#f0abfc"
 
@@ -18,60 +19,109 @@ HOLTDROID = (
     '<ellipse cx="32" cy="39" rx="5" ry="3.5" fill="#d9b48f"/><circle cx="32" cy="38" r="1.8" fill="#1b1b1b"/>'
     f'<rect x="4" y="48" width="56" height="8" rx="4" fill="{GREEN}"/></g>'
 )
-HOLTKEEPER = (
-    '<g fill="none"><circle cx="13.5" cy="25.5" r="4.6" fill="#d95a0b"/><circle cx="50.5" cy="25.5" r="4.6" fill="#d95a0b"/>'
-    f'<circle cx="13.5" cy="25.5" r="2" fill="{AMBER}"/><circle cx="50.5" cy="25.5" r="2" fill="{AMBER}"/>'
-    f'<path d="M8 42c0-14 10.7-25 24-25s24 11 24 25v6H8z" fill="{ORANGE}"/>'
-    '<circle cx="23" cy="32" r="3.4" fill="#1a120c"/><circle cx="24.2" cy="30.8" r="1.1" fill="#fff"/>'
-    '<circle cx="41" cy="32" r="3.4" fill="#1a120c"/><circle cx="42.2" cy="30.8" r="1.1" fill="#fff"/>'
-    '<ellipse cx="32" cy="41.5" rx="12" ry="6.5" fill="#ffe6cc"/>'
-    '<path d="M21 39.5l-8.5-1.8M21 42.5l-8.5 1M43 39.5l8.5-1.8M43 42.5l8.5 1" stroke="#ffe6cc" stroke-opacity=".85" stroke-width="1.2" stroke-linecap="round"/>'
-    '<ellipse cx="32" cy="38.2" rx="3.3" ry="2.3" fill="#1a120c"/>'
-    '<path d="M28.6 41.6q1.7 2 3.4 0q1.7 2 3.4 0" stroke="#1a120c" stroke-width="1.4" stroke-linecap="round"/>'
-    f'<circle cx="11" cy="52.5" r="5" stroke="{AMBER}" stroke-width="3.4"/>'
-    f'<rect x="15.5" y="50.8" width="42.5" height="3.4" rx="1.7" fill="{AMBER}"/>'
-    f'<rect x="45" y="52" width="3.4" height="6.5" rx="1.2" fill="{AMBER}"/>'
-    f'<rect x="51" y="52" width="3.4" height="4.8" rx="1.2" fill="{AMBER}"/></g>'
-)
+HOLTKEEPER = '<g fill="none"><circle cx="12.5" cy="16.5" r="8" fill="#76593f"/><circle cx="12.5" cy="16.5" r="3.8" fill="#eadccb" fill-opacity=".55"/><circle cx="51.5" cy="16.5" r="8" fill="#76593f"/><circle cx="51.5" cy="16.5" r="3.8" fill="#eadccb" fill-opacity=".55"/><path d="M32 9C47 9 57 19 58 32C58.5 37 60 41 62.5 44C59.5 44.5 58 45.5 57.5 47C60 48.5 61 50 61 51.5C57 51 55 52 52.5 54C47 58.5 40 60 32 60C24 60 17 58.5 11.5 54C9 52 7 51 3 51.5C3 50 4 48.5 6.5 47C6 45.5 4.5 44.5 1.5 44C4 41 5.5 37 6 32C7 19 17 9 32 9Z" fill="#9c7a5e"/><ellipse cx="32" cy="50" rx="15" ry="8.5" fill="#eadccb"/><path d="M9 33.5c4-6.5 12.5-7.5 17.5-3.5 3 2.4 8 2.4 11 0 5-4 13.5-3 17.5 3.5-4.5 4-12 4.5-17 1.8-3.2-1.7-8.8-1.7-12 0-5 2.7-12.5 2.2-17-1.8z" fill="#0b0b0c" fill-opacity=".34"/><circle cx="21.5" cy="32" r="3.2" fill="#0b0b0c"/><circle cx="22.55" cy="30.95" r="1.05" fill="#fff"/><circle cx="42.5" cy="32" r="3.2" fill="#0b0b0c"/><circle cx="43.55" cy="30.95" r="1.05" fill="#fff"/><ellipse cx="32" cy="45.2" rx="3.4" ry="2.3" fill="#0b0b0c"/></g>'
 
 FONT = "Helvetica Neue, Helvetica, Arial, sans-serif"
 MONO = "Menlo, SF Mono, monospace"
+W, H, R = 880, 132, 44
+
+
+def squircle(x, y, w, h, r, n=5, steps=12):
+    def corner(cx, cy, a0):
+        pts = []
+        for i in range(steps + 1):
+            t = math.radians(a0 + 90 * i / steps)
+            c, s = math.cos(t), math.sin(t)
+            pts.append((cx + r * math.copysign(abs(c) ** (2 / n), c), cy + r * math.copysign(abs(s) ** (2 / n), s)))
+        return pts
+    pts = corner(x + w - r, y + r, 270) + corner(x + w - r, y + h - r, 0) + corner(x + r, y + h - r, 90) + corner(x + r, y + r, 180)
+    return "M" + "L".join(f"{px:.1f} {py:.1f}" for px, py in pts) + "Z"
+
+
+EVENTIDE = (
+    '<rect x="8" y="10" width="48" height="46" rx="11" fill="#f2f0f8"/>'
+    '<path d="M8 21a11 11 0 0 1 11-11h26a11 11 0 0 1 11 11v3H8z" fill="#7f77dd"/>'
+    '<rect x="20" y="5" width="4" height="10" rx="2" fill="#4b4499"/><rect x="40" y="5" width="4" height="10" rx="2" fill="#4b4499"/>'
+    '<clipPath id="sheet"><rect x="8" y="10" width="48" height="46" rx="11"/></clipPath>'
+    '<g clip-path="url(#sheet)"><g class="tide">'
+    '<path d="M-40 42q8-5 16 0t16 0t16 0t16 0t16 0t16 0t16 0t16 0V64H-40z" fill="#e0704a"/>'
+    '<path d="M-40 46q8-4 16 0t16 0t16 0t16 0t16 0t16 0t16 0t16 0V64H-40z" fill="#7f77dd" fill-opacity=".85"/>'
+    '</g></g><circle cx="22" cy="32" r="3" fill="#7f77dd"/><circle cx="32" cy="32" r="3" fill="#e0704a"/><circle cx="42" cy="32" r="3" fill="#c9c5ea"/>'
+)
+
+
+def holtkeeper_eyes(icon):
+    eyes = re.findall(r'<circle cx="(?:2[12]|4[23])[.\d]*" cy="3[0-2][.\d]*" r="[\d.]+" fill="#(?:0b0b0c|fff)"/>', icon)
+    for e in eyes:
+        icon = icon.replace(e, "")
+    return icon + '<g class="eye">' + "".join(eyes) + "</g>"
+
+
 
 PROJECTS = [
-    {
-        "name": "holtdroid",
-        "title": "Holtdroid",
-        "icon": HOLTDROID,
-        "accent": GREEN,
-        "tagline": "A cozy holt for your test Androids.",
-        "lines": ["Self-hosted Android sandboxes for APK", "testing: device screen, WebView DevTools,", "clipboard and VPN in one browser tab."],
-        "chips": ["Go", "React", "Kotlin", "Kubernetes"],
-    },
-    {
-        "name": "holtkeeper",
-        "title": "Holtkeeper",
-        "icon": HOLTKEEPER,
-        "accent": ORANGE,
-        "tagline": "The keeper of your repository holt.",
-        "lines": ["An automation engine for a fleet of Git", "repositories: AI review, dependency updates,", "audits and releases on GitLab and GitHub."],
-        "chips": ["TypeScript", "Bun", "GitLab", "GitHub"],
-    },
+    dict(slug="holtdroid", url="https://github.com/holtdroid", repo="holtdroid/holtdroid", title="Holtdroid", accent=GREEN,
+         text="Self-hosted Android sandboxes in a browser tab for APK and WebView testing.",
+         icon=HOLTDROID.replace('<path d="M20 16l-4-7M44 16l4-7"', '<path class="ant" d="M20 16l-4-7M44 16l4-7"'),
+         css=".ant{transform-origin:32px 17px;animation:wiggle 4s ease-in-out infinite}"
+             "@keyframes wiggle{0%,80%,100%{transform:rotate(0)}85%{transform:rotate(-8deg)}90%{transform:rotate(7deg)}95%{transform:rotate(-4deg)}}"),
+    dict(slug="holtkeeper", url="https://github.com/holtkeeper", repo="holtkeeper/holtkeeper", title="Holtkeeper", accent=ORANGE,
+         text="AI review, dependency updates, audits and releases for a fleet of Git repositories.",
+         icon=holtkeeper_eyes(HOLTKEEPER),
+         css=".eye{transform-origin:32px 32px;animation:blink 5s infinite}"
+             "@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}"),
+    dict(slug="favicons", url="https://favicons.page", repo="peleda-app/favicons", title="favicons.page", accent="#e8613c",
+         text="Any website’s icon as a clean, sandboxed SVG with light and dark theme colours.",
+         icon='<rect width="64" height="64" rx="16" fill="#141416"/><path d="M8 52V24a8 8 0 0 1 8-8h20a8 8 0 0 1 7.2 4.5L48 30h0a4 4 0 0 0 3.6 2.2H56V52Z" fill="#fbf0df"/><rect class="dot" x="15" y="22" width="14" height="14" rx="4" fill="#e8613c"/><rect x="33" y="27" width="10" height="4" rx="2" fill="#141416" opacity=".25"/>',
+         css=".dot{animation:hue 6s steps(1) infinite}"
+             "@keyframes hue{0%{fill:#e8613c}25%{fill:#3ddc84}50%{fill:#7f77dd}75%{fill:#ffb547}}"),
+    dict(slug="eventide", url="https://github.com/kriakiku/eventide-card", repo="kriakiku/eventide-card", title="Eventide", accent="#7f77dd",
+         text="A Home Assistant calendar card where events rise before they start and ebb while they run.",
+         icon=EVENTIDE,
+         css=".tide{animation:tide 7s ease-in-out infinite}"
+             "@keyframes tide{0%,100%{transform:translate(0,4px)}50%{transform:translate(-16px,-9px)}}"),
 ]
 
-STACK = [
-    ("TypeScript", "#3178c6"),
-    ("Go", "#00add8"),
-    ("Swift", "#f05138"),
-    ("Kotlin", "#a97bff"),
-    ("Python", "#3572a5"),
-    ("React", "#61dafb"),
-    ("Bun", "#fbf0df"),
-    ("Nix", "#7e7eff"),
-    ("Nushell", "#4e9a06"),
-    ("Kubernetes", "#326ce5"),
-    ("Home Assistant", "#18bcf2"),
-    ("Claude Code", "#d97757"),
-]
+THEMES = {
+    "dark": dict(bg="#16131a", bg2="#1f1a24", stroke="#2c2632", title="#faf7fc", text="#bdb4c6", meta="#8a8094", glow=".30"),
+    "light": dict(bg="#ffffff", bg2="#f7f4f9", stroke="#e6e0ea", title="#1a1520", text="#4f4757", meta="#857c8e", glow=".16"),
+}
+
+
+def wrap(text, width=58):
+    lines, line = [], ""
+    for w in text.split():
+        if len(line) + len(w) + 1 > width:
+            lines.append(line)
+            line = w
+        else:
+            line = f"{line} {w}".strip()
+    return lines + [line]
+
+
+def plaque(p, t):
+    icon = p["icon"]
+    shape = squircle(1, 1, W - 2, H - 2, R)
+    tile = squircle(20, 18, 96, 96, 30)
+    a = p["accent"]
+    body = "".join(f'<text x="148" y="{94 + i * 22}" font-family="{FONT}" font-size="17" fill="{t["text"]}">{l}</text>' for i, l in enumerate(wrap(p["text"])))
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">
+<style>{p["css"]}
+.glow{{animation:drift 9s ease-in-out infinite alternate}}@keyframes drift{{from{{transform:translateX(0)}}to{{transform:translateX(120px)}}}}
+.sheen{{animation:sheen 8s ease-in-out infinite}}@keyframes sheen{{0%,70%{{transform:translateX(-260px)}}100%{{transform:translateX({W + 260}px)}}}}
+@media (prefers-reduced-motion:reduce){{*{{animation:none!important}}}}</style>
+<defs><clipPath id="c"><path d="{shape}"/></clipPath>
+<radialGradient id="g" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(70 66) scale(260 160)"><stop stop-color="{a}" stop-opacity="{t["glow"]}"/><stop offset="1" stop-color="{a}" stop-opacity="0"/></radialGradient>
+<linearGradient id="s" x1="0" x2="1"><stop stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".06"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
+<g clip-path="url(#c)"><rect width="{W}" height="{H}" fill="{t["bg"]}"/><rect class="glow" x="-120" width="{W}" height="{H}" fill="url(#g)"/>
+<rect class="sheen" width="200" height="{H}" fill="url(#s)" transform="skewX(-20)"/></g>
+<path d="{shape}" fill="none" stroke="{t["stroke"]}" stroke-width="1.5"/>
+<path d="{tile}" fill="{t["bg2"]}" stroke="{t["stroke"]}"/>
+<svg x="32" y="30" width="72" height="72" viewBox="0 0 64 64">{icon}</svg>
+<text x="148" y="40" font-family="{MONO}" font-size="14" fill="{t["meta"]}"><tspan fill="{a}">{p["repo"].split("/")[0]}/</tspan>{p["repo"].split("/")[1]}</text>
+<text x="146" y="70" font-family="{FONT}" font-size="28" font-weight="700" fill="{t["title"]}">{p["title"]}</text>
+{body}
+<path d="M{W - 60} 58l10 8-10 8" fill="none" stroke="{t["meta"]}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>'''
 
 
 def background(w, h, glows, strip=None):
@@ -119,69 +169,15 @@ def banner():
 </svg>"""
 
 
-def chips(x, y, items, accent, size=28):
-    out, cx = [], x
-    for c in items:
-        width = 36 + len(c) * size * 0.62
-        out.append(
-            f'<rect x="{cx}" y="{y}" width="{width}" height="{size * 2}" rx="{size}" fill="{accent}" fill-opacity=".14" stroke="{accent}" stroke-opacity=".5" stroke-width="1.5"/>'
-            f'<text x="{cx + width / 2}" y="{y + size * 1.36}" text-anchor="middle" font-family="{FONT}" font-size="{size}" font-weight="500" fill="#f1ebf5">{c}</text>'
-        )
-        cx += width + 14
-    return "".join(out)
-
-
-def card(p):
-    w, h = 1200, 640
-    lines = "".join(
-        f'<text x="64" y="{370 + i * 54}" font-family="{FONT}" font-size="40" fill="#c8c0cf">{l}</text>' for i, l in enumerate(p["lines"])
-    )
-    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">
-{background(w, h, [(170, 150, 420, p["accent"])], [p["accent"], p["accent"]])}
-<g transform="translate(48 30) scale(3.4)">{p["icon"]}</g>
-<text x="306" y="118" font-family="{MONO}" font-size="30" fill="{p["accent"]}">{p["name"]}/<tspan fill="#9b92a3">{p["name"]}</tspan></text>
-<text x="302" y="206" font-family="{FONT}" font-size="88" font-weight="700" fill="#faf7fc">{p["title"]}</text>
-<text x="306" y="258" font-family="{FONT}" font-size="34" fill="{p["accent"]}" fill-opacity=".9">{p["tagline"]}</text>
-{lines}
-{chips(64, 524, p["chips"], p["accent"])}
-</svg>"""
-
-
-def stack():
-    w, size, gap = 1280, 24, 14
-    rows, row, x = [], [], 0
-    for name, color in STACK:
-        width = 64 + len(name) * size * 0.58
-        if x + width > w and row:
-            rows.append(row)
-            row, x = [], 0
-        row.append((name, color, width))
-        x += width + gap
-    rows.append(row)
-    h = len(rows) * 70 - 14
-    out = []
-    for r, items in enumerate(rows):
-        total = sum(i[2] for i in items) + gap * (len(items) - 1)
-        cx = (w - total) / 2
-        y = r * 70
-        for name, color, width in items:
-            out.append(
-                f'<rect x="{cx}" y="{y}" width="{width}" height="56" rx="28" fill="#17121b" stroke="{color}" stroke-opacity=".55" stroke-width="1.5"/>'
-                f'<circle cx="{cx + 30}" cy="{y + 28}" r="8" fill="{color}"/>'
-                f'<text x="{cx + 48}" y="{y + 36}" font-family="{FONT}" font-size="{size}" font-weight="500" fill="#efeaf3">{name}</text>'
-            )
-            cx += width + gap
-    return f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">{"".join(out)}</svg>'
-
-
-def write(name, svg, width):
+def write(name, svg, png=None):
     path = OUT / f"{name}.svg"
     path.write_text(svg)
-    subprocess.run(["rsvg-convert", "-w", str(width), "-o", str(OUT / f"{name}.png"), str(path)], check=True)
+    if png:
+        subprocess.run(["rsvg-convert", "-w", str(png), "-o", str(OUT / f"{name}.png"), str(path)], check=True)
 
 
 OUT.mkdir(parents=True, exist_ok=True)
 write("banner", banner(), 1280)
-write("stack", stack(), 1280)
 for p in PROJECTS:
-    write(f"card-{p['name']}", card(p), 1200)
+    for theme, colors in THEMES.items():
+        write(f"plaque-{p['slug']}-{theme}", plaque(p, colors))

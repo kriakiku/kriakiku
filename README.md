@@ -2,21 +2,29 @@
   <img src="assets/banner.png" alt="Jonas D. — web developer from Vilnius, Lithuania, simplifying the world around him by overengineering it">
 </p>
 
-Hi, I'm Jonas, a web developer from Vilnius. Besides web apps I build tools for two everyday chores:
-testing APKs on real Androids, and keeping a fleet of repositories updated, reviewed and released.
-Each one got its own organization, its own otter and its own holt.
+Hi, I'm Jonas, a web developer from Vilnius. Besides web apps I build tools for everyday chores:
+testing APKs on real Androids, keeping a fleet of repositories updated, reviewed and released,
+showing website icons that look right in any theme, and a calendar for my Home Assistant dashboard.
 
 ## Projects
 
 <p align="center">
-  <a href="https://github.com/holtdroid"><img src="assets/card-holtdroid.png" width="49%" alt="Holtdroid — self-hosted Android sandboxes for APK testing"></a>
-  <a href="https://github.com/holtkeeper"><img src="assets/card-holtkeeper.png" width="49%" alt="Holtkeeper — automation engine for a fleet of Git repositories"></a>
-</p>
-
-## Stack
-
-<p align="center">
-  <img src="assets/stack.png" alt="TypeScript, Go, Swift, Kotlin, Python, React, Bun, Nix, Nushell, Kubernetes, Home Assistant, Claude Code">
+<a href="https://github.com/holtdroid"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/plaque-holtdroid-dark.svg">
+  <img src="assets/plaque-holtdroid-light.svg" width="100%" alt="Holtdroid — self-hosted Android sandboxes for APK testing">
+</picture></a>
+<a href="https://github.com/holtkeeper"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/plaque-holtkeeper-dark.svg">
+  <img src="assets/plaque-holtkeeper-light.svg" width="100%" alt="Holtkeeper — automation engine for a fleet of Git repositories">
+</picture></a>
+<a href="https://favicons.page"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/plaque-favicons-dark.svg">
+  <img src="assets/plaque-favicons-light.svg" width="100%" alt="favicons.page — any website's icon as a clean SVG with light and dark theme colours">
+</picture></a>
+<a href="https://github.com/kriakiku/eventide-card"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/plaque-eventide-dark.svg">
+  <img src="assets/plaque-eventide-light.svg" width="100%" alt="Eventide — Home Assistant calendar card">
+</picture></a>
 </p>
 
 ## Activity
