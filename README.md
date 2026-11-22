@@ -26,13 +26,7 @@
 
 ## Activity
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/kriakiku/kriakiku/output/stats.svg" alt="Contributions on GitHub and GitLab, streaks, stars and languages">
-</p>
-
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/kriakiku/kriakiku/output/snake-dark.svg">
-    <img src="https://raw.githubusercontent.com/kriakiku/kriakiku/output/snake.svg" alt="An orange snake eating the combined GitHub and GitLab contribution graph">
-  </picture>
-</p>
+<p align="center"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/kriakiku/kriakiku/output/stats-dark.svg">
+  <img src="https://raw.githubusercontent.com/kriakiku/kriakiku/output/stats-light.svg" width="100%" alt="A year of contributions across GitHub and GitLab drawn as a wireframe trials track with a tiny motorbike riding it, plus streaks and stars across my own and organization repositories">
+</picture></p>

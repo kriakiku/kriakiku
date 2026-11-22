@@ -172,9 +172,25 @@ def write(name, svg):
     (OUT / f"{name}.svg").write_text(svg)
 
 
-OUT = pathlib.Path(sys.argv[1])
-OUT.mkdir(parents=True, exist_ok=True)
-for theme, colors in THEMES.items():
-    write(f"hero-{theme}", hero(colors))
-    for p in PROJECTS:
-        write(f"plaque-{p['slug']}-{theme}", plaque(p, colors))
+def glow_layers(glows, t, h):
+    defs = "".join(
+        f'<radialGradient id="g{i}" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate({x} {y}) scale({rx} {ry})">'
+        f'<stop stop-color="{c}" stop-opacity="{t["glow"] * k:.2f}"/><stop offset=".55" stop-color="{c}" stop-opacity="{t["glow"] * k * .35:.2f}"/><stop offset="1" stop-color="{c}" stop-opacity="0"/></radialGradient>'
+        for i, (x, y, rx, ry, c, k) in enumerate(glows)
+    )
+    layers = "".join(f'<rect class="d{i}" x="-200" y="-100" width="{W + 400}" height="{h + 200}" fill="url(#g{i})"/>' for i in range(len(glows)))
+    return defs, layers
+
+
+DRIFT = """.d0{animation:a0 13s ease-in-out infinite alternate}.d1{animation:a1 17s ease-in-out infinite alternate}.d2{animation:a2 11s ease-in-out infinite alternate}
+@keyframes a0{to{transform:translate(120px,16px)}}@keyframes a1{to{transform:translate(-140px,-20px)}}@keyframes a2{to{transform:translate(-80px,24px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}"""
+
+
+if __name__ == "__main__":
+    OUT = pathlib.Path(sys.argv[1])
+    OUT.mkdir(parents=True, exist_ok=True)
+    for theme, colors in THEMES.items():
+        write(f"hero-{theme}", hero(colors))
+        for p in PROJECTS:
+            write(f"plaque-{p['slug']}-{theme}", plaque(p, colors))
