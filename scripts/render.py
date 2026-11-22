@@ -44,7 +44,11 @@ def squircle(x, y, w, h, r, n=5, steps=12):
 def eventide(t):
     day = datetime.datetime.now(zoneinfo.ZoneInfo("Europe/Vilnius"))
     return (
-        f'<path d="{squircle(9, 4, 46, 56, 12)}" fill="{t["ev_tile"]}" stroke="#7f77dd" stroke-width="1.5"/>'
+        '<linearGradient id="ring" gradientUnits="userSpaceOnUse" x1="4" y1="32" x2="60" y2="32">'
+        '<stop stop-color="#7f77dd"/><stop offset=".5" stop-color="#e0704a"/><stop offset="1" stop-color="#7f77dd"/>'
+        '<animateTransform attributeName="gradientTransform" type="rotate" from="0 32 32" to="360 32 32" dur="30s" repeatCount="indefinite"/>'
+        '</linearGradient>'
+        f'<path d="{squircle(9, 4, 46, 56, 12)}" fill="{t["ev_tile"]}" stroke="url(#ring)" stroke-width="1.75"/>'
         f'<text x="32" y="21" text-anchor="middle" font-family="{FONT}" font-size="12.5" fill="{t["ev_t2"]}">{day:%a}</text>'
         f'<line x1="10" x2="54" y1="27" y2="27" stroke="{t["ev_rule"]}" stroke-width="1"/>'
         f'<text x="32" y="51" text-anchor="middle" font-family="{FONT}" font-size="21" font-weight="600" fill="{t["ev_t1"]}">{day.day}</text>'
@@ -76,8 +80,8 @@ PROJECTS = [
          glows=[(40, 70, 280, 160, "#e8613c", 1), (380, -30, 300, 100, "#fbbf24", .55), (790, 150, 260, 120, FUCHSIA, .55)],
          text="Any website’s icon as a clean, sandboxed SVG with light and dark theme colours.",
          icon='<rect width="64" height="64" rx="16" fill="#141416"/><path d="M8 52V24a8 8 0 0 1 8-8h20a8 8 0 0 1 7.2 4.5L48 30h0a4 4 0 0 0 3.6 2.2H56V52Z" fill="#fbf0df"/><rect class="dot" x="15" y="22" width="14" height="14" rx="4" fill="#e8613c"/><rect x="33" y="27" width="10" height="4" rx="2" fill="#141416" opacity=".25"/>',
-         css=".dot{animation:hue 6s steps(1) infinite}"
-             "@keyframes hue{0%{fill:#e8613c}25%{fill:#3ddc84}50%{fill:#7f77dd}75%{fill:#ffb547}}"),
+         css=".dot{animation:hue 24s ease-in-out infinite}"
+             "@keyframes hue{0%,100%{fill:#e8613c}25%{fill:#ffb547}50%{fill:#3ddc84}75%{fill:#7f77dd}}"),
     dict(slug="eventide", url="https://github.com/kriakiku/eventide-card", repo="kriakiku/eventide-card", title="Eventide", accent="#7f77dd",
          glows=[(80, 20, 300, 150, "#7f77dd", 1), (420, 160, 300, 110, "#e0704a", .6), (820, 0, 220, 120, "#4f46e5", .6)],
          text="A Home Assistant calendar card where events rise before they start and ebb while they run.",
