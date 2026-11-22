@@ -24,16 +24,16 @@
 </picture></a>
 </p>
 
-## My Homelab
-
-<p align="center"><picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/kriakiku/kriakiku/output/homelab-dark.svg">
-  <img src="https://raw.githubusercontent.com/kriakiku/kriakiku/output/homelab-light.svg" width="100%" alt="My homelab rack: UniFi Dream Router 7, UniFi Flex 2.5G Mini, a Tenda 8x 2.5G + 2x 10G SFP+ switch, three HP EliteDesk G4 Mini nodes and an AOOSTAR WTR PRO NAS with a Ryzen 7 5825U">
-</picture></p>
-
 ## Activity
 
 <p align="center"><picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/kriakiku/kriakiku/output/stats-dark.svg">
   <img src="https://raw.githubusercontent.com/kriakiku/kriakiku/output/stats-light.svg" width="100%" alt="A year of contributions across GitHub and GitLab drawn as a wireframe trials track with a tiny motorbike riding it, plus streaks and stars across my own and organization repositories">
+</picture></p>
+
+## My Homelab
+
+<p align="center"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/kriakiku/kriakiku/output/homelab-dark.svg">
+  <img src="https://raw.githubusercontent.com/kriakiku/kriakiku/output/homelab-light.svg" width="100%" alt="My homelab rack: UniFi Dream Router 7, UniFi Flex 2.5G Mini, a Tenda 8x 2.5G + 2x 10G SFP+ switch, three HP EliteDesk G4 Mini nodes and an AOOSTAR WTR PRO NAS with a Ryzen 7 5825U">
 </picture></p>

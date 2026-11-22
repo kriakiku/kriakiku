@@ -265,20 +265,9 @@ def led(x, y, color, period, delay=0, r=1.6):
             f'dur="{period}s" begin="{delay}s" repeatCount="indefinite"/></circle>')
 
 
-def cable(x1, y1, x2, y2, sag, color, period, delay=0):
-    def d(extra):
-        return f"M{x1} {y1}C{x1} {y1 + sag + extra:.1f} {x2} {y2 - abs(y2 - y1) * .35 + extra:.1f} {x2} {y2}"
-    return (f'<path d="{d(0)}" fill="none" stroke="{color}" stroke-width="2.2" stroke-linecap="round" opacity=".92">'
-            f'<animate attributeName="d" values="{d(0)};{d(5)};{d(0)}" keyTimes="0;.5;1" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1" '
-            f'dur="{period}s" begin="{delay}s" repeatCount="indefinite"/></path>')
-
-
-def side_cable(x1, y1, x2, y2, reach, color, period, delay=0):
-    def d(extra):
-        return f"M{x1} {y1}C{x1} {y1 + 6} {x2 + reach + extra:.1f} {y1 + 6} {x2 + reach + extra:.1f} {(y1 + y2) / 2:.1f}S{x2 + 6} {y2} {x2} {y2}"
-    return (f'<path d="{d(0)}" fill="none" stroke="{color}" stroke-width="2.2" stroke-linecap="round" opacity=".92">'
-            f'<animate attributeName="d" values="{d(0)};{d(3)};{d(0)}" keyTimes="0;.5;1" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1" '
-            f'dur="{period}s" begin="{delay}s" repeatCount="indefinite"/></path>')
+def cable(x1, y1, x2, y2, sag, color, period=0, delay=0):
+    return (f'<path d="M{x1} {y1}C{x1} {y1 + sag:.1f} {x2} {y2 - abs(y2 - y1) * .35:.1f} {x2} {y2}" fill="none" stroke="{color}" '
+            f'stroke-width="2.2" stroke-linecap="round" opacity=".92"/>')
 
 
 def homelab(t):
@@ -296,7 +285,7 @@ def homelab(t):
     dark = name == "dark"
     frame, inner, rail, hole = ("#2a2e35", "#121418", "#3a3f47", "#0b0c0e") if dark else ("#3a3f47", "#1c1f24", "#4a5059", "#101215")
     green, blue = "#4ade80", "#60a5fa"
-    x0, x1, top, bottom = 48, 470, 66, 352
+    x0, x1, top, bottom = 48, 470, 52, 352
     parts = [f'''<defs><linearGradient id="pill" x1="0" x2="1"><stop stop-color="#cfd4d9"/><stop offset=".45" stop-color="#ffffff"/><stop offset="1" stop-color="#c4c9ce"/></linearGradient>
 <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#3a3f46"/><stop offset="1" stop-color="#1f2226"/></linearGradient>
 <linearGradient id="gun" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#4b5058"/><stop offset="1" stop-color="#2a2d32"/></linearGradient>
@@ -332,11 +321,13 @@ def homelab(t):
     for g in (ports[:4], ports[4:]):
         parts.append(f'<rect x="{g[0] - 1:.1f}" y="{ty + 11}" width="{g[-1] - g[0] + 12:.1f}" height="12" rx="1" fill="#9ca3af"/>')
     parts.append("".join(f'<rect x="{x:.1f}" y="{ty + 13}" width="10" height="10" rx=".6" fill="#0d0f12"/><rect x="{x + 2.5:.1f}" y="{ty + 21}" width="5" height="1" fill="#6b7280"/>' for x in ports))
-    parts.append("".join(led(x + 1.8, ty + 14.3, "#4ade80", .8 + (i * .29) % 1.3, i * .13, .6) + led(x + 8.2, ty + 14.3, "#fb923c" if i % 3 == 0 else "#4ade80", 1.3 + (i * .41) % 1.1, i * .21, .6) for i, x in enumerate(ports)))
+    blink = [(.8 + (i * .29) % 1.3, i * .13, 1.3 + (i * .41) % 1.1, i * .21) for i in range(8)]
+    blink[7] = blink[6]
+    parts.append("".join(led(x + 1.8, ty + 14.3, "#4ade80", blink[i][0], blink[i][1], .6) + led(x + 8.2, ty + 14.3, "#fb923c" if i % 3 == 0 and i < 6 else "#4ade80", blink[i][2], blink[i][3], .6) for i, x in enumerate(ports)))
     parts.append("".join(f'<text x="{x + 5:.1f}" y="{ty + 29.5}" text-anchor="middle" font-family="{FONT}" font-size="3.6" fill="#d1d5db">{i + 1}</text>' for i, x in enumerate(ports)))
     sfp = [tx + 122 + i * 15 for i in range(2)]
-    parts.append(f'<rect x="{sfp[0] - 1}" y="{ty + 6}" width="29" height="3.4" rx=".5" fill="#f3f4f6"/>')
-    parts.append(f'<rect x="{sfp[0] - 1}" y="{ty + 12}" width="29" height="11" rx=".6" fill="#9ca3af"/>')
+    parts.append(f'<rect x="{sfp[0] - 1}" y="{ty + 6}" width="30" height="3.4" rx=".5" fill="#f3f4f6"/>')
+    parts.append(f'<rect x="{sfp[0] - 1}" y="{ty + 12}" width="30" height="11" rx=".6" fill="#9ca3af"/>')
     parts.append("".join(f'<rect x="{x}" y="{ty + 13}" width="13" height="9" rx=".5" fill="#0d0f12"/>' for x in sfp))
     parts.append("".join(led(x + 6, ty + 26.5, "#4ade80", 1.7 + i * .6, i * .4, .6) for i, x in enumerate(sfp)))
 
@@ -380,8 +371,7 @@ def homelab(t):
         rear.append("".join(f'<rect x="{nx + 28 + k * 7}" y="{by + 4}" width="4" height="10" rx=".6" fill="#050607"/>' for k in range(5)))
         rear.append(led(nx + 12.5, by + 6, "#4ade80", .6 + b * .23, b * .17, .8) + led(nx + 12.5, by + 12, "#60a5fa", 1.3 + b * .31, b * .29, .8))
     rear.append(f'<rect x="{nx + 10}" y="{ny + 92}" width="{nw - 20}" height="16" rx="1" fill="url(#perf)"/>')
-    rear.append(f'<rect x="{nx + nw - 34}" y="{ny + 100}" width="20" height="7" rx="1" fill="#dc2626"/><text x="{nx + nw - 24}" y="{ny + 105.2}" text-anchor="middle" font-family="{FONT}" font-size="3.8" font-weight="800" fill="#fff">WTR PRO</text>')
-    rear.append(f'<circle cx="{nx + nw - 9}" cy="{ny + 103.5}" r="2" fill="none" stroke="#9ca3af" stroke-width=".6"/>')
+    rear.append(f'<rect x="{nx + nw - 30}" y="{ny + 100}" width="20" height="7" rx="1" fill="#dc2626"/><text x="{nx + nw - 20}" y="{ny + 105.2}" text-anchor="middle" font-family="{FONT}" font-size="3.8" font-weight="800" fill="#fff">WTR PRO</text>')
     ny_top = ny
 
     fast, slow, lag, uplink = "#3b82f6", "#facc15", "#22c55e", "#e5e7eb"
@@ -397,19 +387,15 @@ def homelab(t):
     parts.append(f'<path d="{up}" fill="none" stroke="{uplink}" stroke-width="2.2" stroke-linecap="round" opacity=".92"/>')
     flex_link = f"M{flex[0] + 3.25} {fy + 9}C{flex[0] + 3.25} {fy + 16} {ux + uw + 10} {fy + 15} {ux + uw - 12} {fy + 13}"
     parts.append(f'<path d="{flex_link}" fill="none" stroke="#f472b6" stroke-width="2.2" stroke-linecap="round" opacity=".92"/>')
-    parts.append(cable(nx + nw - 30, floor - 10, nx + nw - 40, 372, 18, "#111317", 6.0, -.2))
     parts.extend(rear)
 
     rows = []
-    for i, (title, role, y) in enumerate(LAB_PARTS):
+    for i, (title, role, _) in enumerate(LAB_PARTS):
+        y = (top + bottom) / 2 - (len(LAB_PARTS) - 1) * 13 + i * 26 + 5
         rows.append(f'<circle cx="{x1 + 18}" cy="{y - 4}" r="2.5" fill="{accent}"/>')
         rows.append(f'<text x="{x1 + 30}" y="{y}" font-family="{FONT}" font-size="15" font-weight="700" fill="{t["title"]}">{title}<tspan font-weight="400" font-size="13" fill="{meta}" dx="8">{role}</tspan></text>')
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{h}" viewBox="0 0 {W} {h}">
-<defs><clipPath id="c"><path d="{shape}"/></clipPath>{glows}</defs>
-<g clip-path="url(#c)"><rect width="{W}" height="{h}" fill="{t["bg"]}"/>{layers}
-<text x="{x1 + 18}" y="{56}" font-family="{MONO}" font-size="15" fill="{meta}"><tspan fill="{accent}">~/</tspan>homelab</text>
-{"".join(parts)}{"".join(rows)}</g>
-<path d="{shape}" fill="none" stroke="{t["stroke"]}" stroke-width="1.5"/>
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{h - top + 2}" viewBox="0 {top - 2} {W} {h - top + 2}">
+{"".join(parts)}{"".join(rows)}
 </svg>'''
 
 
