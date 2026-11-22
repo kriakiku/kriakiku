@@ -75,7 +75,7 @@ PROJECTS = [
     dict(slug="favicons", url="https://favicons.page", repo="peleda-app/favicons", title="favicons.page", accent="#e8613c",
          glows=[(40, 70, 280, 160, "#e8613c", 1), (380, -30, 300, 100, "#fbbf24", .55), (790, 150, 260, 120, FUCHSIA, .55)],
          text="Any website’s icon as a clean, sandboxed SVG with light and dark theme colours.",
-         icon='<rect width="64" height="64" rx="16" fill="#141416"/><path d="M8 52V24a8 8 0 0 1 8-8h20a8 8 0 0 1 7.2 4.5L48 30h0a4 4 0 0 0 3.6 2.2H56V52Z" fill="#fbf0df"/><rect class="dot" x="15" y="22" width="14" height="14" rx="4" fill="#e8613c"/><rect x="33" y="27" width="10" height="4" rx="2" fill="#141416" opacity=".25"/>',
+         icon=lambda t: f'<g transform="translate(32 32) scale(1.15) translate(-32 -34)"><path d="M8 52V24a8 8 0 0 1 8-8h20a8 8 0 0 1 7.2 4.5L48 30h0a4 4 0 0 0 3.6 2.2H56V52Z" fill="{t["fv_glyph"]}"/><rect class="dot" x="15" y="22" width="14" height="14" rx="4" fill="#e8613c"/><rect x="33" y="27" width="10" height="4" rx="2" fill="{t["fv_slot"]}" opacity=".25"/></g>',
          css=".dot{animation:hue 24s ease-in-out infinite}"
              "@keyframes hue{0%,100%{fill:#e8613c}25%{fill:#ffb547}50%{fill:#3ddc84}75%{fill:#7f77dd}}"),
     dict(slug="eventide", url="https://github.com/kriakiku/eventide-card", repo="kriakiku/eventide-card", title="Eventide", accent="#7f77dd",
@@ -86,9 +86,9 @@ PROJECTS = [
 ]
 
 THEMES = {
-    "dark": dict(name="dark", bg="#16131a", bg2="#1f1a24", stroke="#2c2632", title="#faf7fc", text="#bdb4c6", meta="#8a8094", glow=.34,
+    "dark": dict(name="dark", fv_glyph="#fbf0df", fv_slot="#141416", bg="#16131a", bg2="#1f1a24", stroke="#2c2632", title="#faf7fc", text="#bdb4c6", meta="#8a8094", glow=.34,
                  ev_tile="#1c1b24", ev_t1="#f2f0f8", ev_t2="#aba8b8", ev_rule="#3c3a49"),
-    "light": dict(name="light", bg="#ffffff", bg2="#f7f4f9", stroke="#e6e0ea", title="#1a1520", text="#4f4757", meta="#857c8e", glow=.2,
+    "light": dict(name="light", fv_glyph="#1d1b20", fv_slot="#fbf0df", bg="#ffffff", bg2="#f7f4f9", stroke="#e6e0ea", title="#1a1520", text="#4f4757", meta="#857c8e", glow=.2,
                  ev_tile="#ffffff", ev_t1="#1f1d2b", ev_t2="#6a6778", ev_rule="#e4e2ee"),
 }
 
