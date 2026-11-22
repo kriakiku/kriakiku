@@ -278,7 +278,7 @@ def grid(s, x0, x1, top, edge, color):
     return "".join(f'<path fill="{color}" fill-opacity="{o}" d="{"".join(p)}"/>' for o, p in zip(LEVEL_OPACITY, levels) if p), [places[round(i * len(places) / len(days))] for i in range(len(days))], size
 
 
-TRAIL, GLOW = 8, .01
+TRAIL, GLOW = 8, .2
 
 
 def trail(places, moments, size, color):

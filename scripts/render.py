@@ -104,6 +104,19 @@ def wrap(text, width=58):
     return lines + [line]
 
 
+def mix(a, b, k):
+    ca, cb = (tuple(int(c[i:i + 2], 16) for i in (1, 3, 5)) for c in (a, b))
+    return "#" + "".join(f"{round(x * k + y * (1 - k)):02x}" for x, y in zip(ca, cb))
+
+
+TINT = {"dark": (("#ece8f0", .22), ("#9a93a2", .4)), "light": (("#3d3844", .25), ("#7a7382", .35))}
+
+
+def tones(accent, t):
+    (text, kt), (meta, km) = TINT[t["name"]]
+    return mix(accent, text, kt), mix(accent, meta, km)
+
+
 def plaque(p, t):
     icon = p["icon"](t) if callable(p["icon"]) else p["icon"]
     glows = "".join(
@@ -115,7 +128,8 @@ def plaque(p, t):
     shape = squircle(1, 1, W - 2, H - 2, R)
     tile = squircle(20, 18, 96, 96, 30)
     a = p["accent"]
-    body = "".join(f'<text x="148" y="{94 + i * 22}" font-family="{FONT}" font-size="17" fill="{t["text"]}">{l}</text>' for i, l in enumerate(wrap(p["text"])))
+    text, meta = tones(a, t)
+    body = "".join(f'<text x="148" y="{94 + i * 22}" font-family="{FONT}" font-size="17" fill="{text}">{l}</text>' for i, l in enumerate(wrap(p["text"])))
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">
 <style>{p["css"]}
 .d0{{animation:a0 11s ease-in-out infinite alternate}}.d1{{animation:a1 14s ease-in-out infinite alternate}}.d2{{animation:a2 9s ease-in-out infinite alternate}}
@@ -127,10 +141,10 @@ def plaque(p, t):
 <path d="{shape}" fill="none" stroke="{t["stroke"]}" stroke-width="1.5"/>
 <path d="{tile}" fill="{t["bg2"]}" stroke="{t["stroke"]}"/>
 <svg x="32" y="30" width="72" height="72" viewBox="0 0 64 64">{icon}</svg>
-<text x="148" y="40" font-family="{MONO}" font-size="14" fill="{t["meta"]}"><tspan fill="{a}">{p["repo"].split("/")[0]}/</tspan>{p["repo"].split("/")[1]}</text>
+<text x="148" y="40" font-family="{MONO}" font-size="14" fill="{meta}"><tspan fill="{a}">{p["repo"].split("/")[0]}/</tspan>{p["repo"].split("/")[1]}</text>
 <text x="146" y="70" font-family="{FONT}" font-size="28" font-weight="700" fill="{t["title"]}">{p["title"]}</text>
 {body}
-<path d="M{W - 60} 58l10 8-10 8" fill="none" stroke="{t["meta"]}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M{W - 60} 58l10 8-10 8" fill="none" stroke="{meta}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>'''
 
 
@@ -153,7 +167,8 @@ def hero(t):
         for i, (x, y, rx, ry, c, k) in enumerate(HERO_GLOWS)
     )
     layers = "".join(f'<rect class="d{i}" x="-200" y="-100" width="{W + 400}" height="{h + 200}" fill="url(#g{i})"/>' for i in range(len(HERO_GLOWS)))
-    body = "".join(f'<text x="44" y="{166 + i * 24}" font-family="{FONT}" font-size="17" fill="{t["text"]}">{l}</text>' for i, l in enumerate(HERO_LINES))
+    text, meta = tones(HERO_ACCENT[t["name"]], t)
+    body = "".join(f'<text x="44" y="{166 + i * 24}" font-family="{FONT}" font-size="17" fill="{text}">{l}</text>' for i, l in enumerate(HERO_LINES))
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{h}" viewBox="0 0 {W} {h}">
 <style>.d0{{animation:a0 13s ease-in-out infinite alternate}}.d1{{animation:a1 17s ease-in-out infinite alternate}}.d2{{animation:a2 11s ease-in-out infinite alternate}}
 @keyframes a0{{to{{transform:translate(120px,16px)}}}}@keyframes a1{{to{{transform:translate(-140px,-20px)}}}}@keyframes a2{{to{{transform:translate(-80px,24px)}}}}
@@ -161,7 +176,7 @@ def hero(t):
 <defs><clipPath id="c"><path d="{shape}"/></clipPath>{glows}</defs>
 <g clip-path="url(#c)"><rect width="{W}" height="{h}" fill="{t["bg"]}"/>{layers}</g>
 <path d="{shape}" fill="none" stroke="{t["stroke"]}" stroke-width="1.5"/>
-<text x="46" y="56" font-family="{MONO}" font-size="16" fill="{t["meta"]}"><tspan fill="{HERO_ACCENT[t["name"]]}">~/</tspan>kriakiku</text>
+<text x="46" y="56" font-family="{MONO}" font-size="16" fill="{meta}"><tspan fill="{HERO_ACCENT[t["name"]]}">~/</tspan>kriakiku</text>
 <text x="44" y="134" font-family="{FONT}" font-size="18" font-weight="600" fill="{HERO_ACCENT[t["name"]]}">{HERO_ROLE}</text>
 <text x="42" y="106" font-family="{FONT}" font-size="50" font-weight="700" fill="{t["title"]}">Jonas D.</text>
 {body}
