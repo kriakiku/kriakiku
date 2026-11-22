@@ -41,7 +41,7 @@ def eventide(t):
     day = datetime.datetime.now(zoneinfo.ZoneInfo("Europe/Vilnius"))
     return (
         '<linearGradient id="ring" gradientUnits="userSpaceOnUse" x1="4" y1="32" x2="60" y2="32">'
-        '<stop stop-color="#7f77dd"/><stop offset=".5" stop-color="#e0704a"/><stop offset="1" stop-color="#7f77dd"/>'
+        '<stop stop-color="#7f77dd"/><stop offset=".5" stop-color="#4c4499"/><stop offset="1" stop-color="#7f77dd"/>'
         '<animateTransform attributeName="gradientTransform" type="rotate" from="0 32 32" to="360 32 32" dur="30s" repeatCount="indefinite"/>'
         '</linearGradient>'
         f'<path d="{squircle(9, 4, 46, 56, 12)}" fill="{t["ev_tile"]}" stroke="url(#ring)" stroke-width="1.75"/>'
