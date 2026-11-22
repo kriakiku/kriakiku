@@ -399,6 +399,222 @@ def homelab(t):
 </svg>'''
 
 
+UA_YELLOW = "#ffd500"
+PX = {"k": "#16111c", "w": "#f4f1fa", "r": "#ff3b1f", "y": "#ffd500", "o": "#ff8a00", "d": "#4b3478", "g": "#2b2236", "s": "#9a8fb0"}
+
+
+class Pixels:
+    def __init__(self):
+        self.cells = {}
+
+    def put(self, x, y, c):
+        self.cells[(round(x), round(y))] = c
+
+    def rect(self, x0, y0, x1, y1, c):
+        for x in range(round(x0), round(x1)):
+            for y in range(round(y0), round(y1)):
+                self.put(x, y, c)
+
+    def poly(self, pts, c):
+        ys = [y for _, y in pts]
+        for y in range(int(min(ys)), int(max(ys)) + 1):
+            xs = []
+            for (x1, y1), (x2, y2) in zip(pts, pts[1:] + pts[:1]):
+                if (y1 <= y + .5 < y2) or (y2 <= y + .5 < y1):
+                    xs.append(x1 + (y + .5 - y1) * (x2 - x1) / (y2 - y1))
+            xs.sort()
+            for xa, xb in zip(xs[::2], xs[1::2]):
+                for x in range(round(xa), round(xb)):
+                    self.put(x, y, c)
+
+    def disc(self, cx, cy, r, c, inner=0):
+        for x in range(int(cx - r - 1), int(cx + r + 2)):
+            for y in range(int(cy - r - 1), int(cy + r + 2)):
+                d = math.dist((x + .5, y + .5), (cx, cy))
+                if inner <= d <= r:
+                    self.put(x, y, c)
+
+    def line(self, x0, y0, x1, y1, c, w=1):
+        n = int(max(abs(x1 - x0), abs(y1 - y0)) * 2) + 1
+        for i in range(n + 1):
+            x, y = x0 + (x1 - x0) * i / n, y0 + (y1 - y0) * i / n
+            self.rect(x - w / 2, y - w / 2, x + w / 2, y + w / 2, c)
+
+    def outlined(self, color):
+        edge = {}
+        for (x, y) in self.cells:
+            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                if (x + dx, y + dy) not in self.cells:
+                    edge[(x + dx, y + dy)] = color
+        self.cells = {**edge, **self.cells}
+        return self
+
+    def svg(self, ox, oy, size):
+        runs = {}
+        for (x, y), c in sorted(self.cells.items(), key=lambda i: (i[0][1], i[0][0])):
+            if self.cells.get((x - 1, y)) == c:
+                continue
+            n = 1
+            while self.cells.get((x + n, y)) == c:
+                n += 1
+            runs.setdefault(c, []).append(f"M{ox + x * size:.1f} {oy + y * size:.1f}h{n * size + .05:.2f}v{size + .05:.2f}h{-(n * size + .05):.2f}z")
+        return "".join(f'<path fill="{PX.get(c, c)}" d="{"".join(d)}"/>' for c, d in runs.items())
+
+
+SHAHED = (
+    "..............k.........................",
+    "...............k...k....................",
+    "...............k..krk...................",
+    "...................krk..................",
+    "...........k.......krrk.................",
+    ".................k..krk............ww.w.",
+    ".............k...k..kk............wkkkk.",
+    ".............kk.krkkrk...k........kkkkk.",
+    "...........kkrrkkrrkrrk.krk.....wkkkkk..",
+    "..........krkkrkkryrrrrkrrk....wkkkkkk..",
+    "...........krrrrrryrrkrrrk...wwkkkkkk...",
+    "............krrryyyryykrrrkwwkkkkkkk....",
+    ".............kkrryyyykkrrrrkkkkkkkk.....",
+    "..............rkrykyyyyrkkkkkkkkkk......",
+    "..............krryyykyyrkkkkkkkkk.......",
+    ".............kkkryykkkyyykkkkkkk........",
+    "............krkkrkkkkyykkkkkkkk.........",
+    "............krrrrryyyykkkkkkkk..........",
+    ".............krkkkykykkkkkkkk...........",
+    "..............kkkkkkkykkkkkk............",
+    ".............kkkkkkkkkkkkkk.............",
+    ".........wwkkkkkkkkkkkkkkk..............",
+    "....w.wwkkkkkkkkkkkkkkkk................",
+    "w.wwkkkkkkkkkkkkkkkkkk.k.k..............",
+    "kkkkkkkkkkkkkkkkkkk...kkk...............",
+    "kkkkkkkkkkkkkk.......kk.................",
+    ".kkkkkkk................................",
+)
+
+
+def shahed(frame):
+    px = Pixels()
+    for y, row in enumerate(SHAHED):
+        for x, c in enumerate(row):
+            if c == ".":
+                continue
+            if c in "ry":
+                if (x * 7 + y * 3 + frame * 2) % 5 == 0:
+                    c = "y" if c == "r" else "r"
+                if frame == 1 and y <= 4:
+                    continue
+            px.put(x, y, c)
+    if frame == 2:
+        for y, row in enumerate(SHAHED[:6]):
+            for x, c in enumerate(row):
+                if c in "ry":
+                    px.put(x, y - 1, c)
+    return px
+
+
+PICKUP = (
+    ".........www................................................................................................",
+    ".......wwkkk................................................................................................",
+    "......wkkkkkk.................................................................................ww............",
+    "......wkkkkkk...................................wwwwwwww.wwwww...ww.w.www....................wkkw...........",
+    "w..w.....kkkk..................................wkkkkkkkkkkkkkkkkkkkkkkkkk...................wkkkkkw.........",
+    "kw.kw....kkk..........www.wkk................wkkkkkkkkkkkkkkkkkkkkkkkkkkkk..................wkkkkkk.........",
+    ".kw.kw....kkkk........kkkwwkwk............wwkkkkddddddkdkkkkkkkkkkkkkkkdkk.................wkkkkkk..........",
+    "..kw.kw..kwwkk........kwkkkkkk...........wkkkkddkkkkkdkdkkkkkkkkkkkkkkkdkk.....wwwww.ww.w..wkkkkkk..........",
+    "...kkkkk.kwkkkk..w.....kkkkkkk..........kkkkddkkkkkkkdkdkkkkkkkkkkkkkkkkdkk.kkkkkkkkkkkkk..kkkkkk...........",
+    "...kkkkkkkkkkkk..kw.....kkkkkk.......wwkkkddkkkkkkkkkdkdkdkkkkkkkkkkkdkkdkk.kdddkddkkkddk...kkkkkk..........",
+    "...kkkkkkkkkkkk..wkww...kwkwkk.......kkkkdkkkkkkkkkkkdkdkdkkkkkkkkkkkdkkdkk.kdddkkkkkkkkk.....kk.k..........",
+    ".....kkkkk.kkkkk.kkkk..kkwwwkkk...wwkkkkdkkkkkkkkkkkkdkdkdkkkkkkkkkkkdkkdkk.kdddkkkkkkkkk........kk.........",
+    ".......kk..kkkkk..kk...kkkwkkkk...kkkkkkdkkkkkkkkkkkkdkdkdkkkkkkkkkddkkkdkk.kdddkkkkkkkkk......kkkkkk.......",
+    "...........kkkkk..kk...kkkkkkkkdkkkkkkkkddddddddddddddkdkddddddddddkkkkkdkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk..",
+    ".......kkkkkkkkk..kk.kkdddkkkddkkkkkkdkkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkdkkddddddddddddddddddddddddddddddd..",
+    "w..wwkkkkkwkkkkkkkkkkkkkkkdddkkkkkkkkdkkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk..",
+    "kwwkkkkkwwkkkkkkkkkkkkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkkkkkkdddddkkkrdww..",
+    "kkkkkkk.kkkwwwwwwkwkkkkkkkkkkkkkkkkkkdkkkkkkkkkkddddkkdkkkkkkkkkkddddkkdkkkkkkkkkkkkkkkkkkkkkkdkkkkkkkrrww..",
+    "kkkkk...kkkwkkkkwwwkkkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkkkkkkkdkkkkkkkrrrw..",
+    "kk.....kkk.kkkkwwkkkkkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkkkkkkkdkkkkkkkkrrr..",
+    ".......kkk.wwwwkkkkkkkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkrrw..",
+    "......kkk..kkkkkkkkkkkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkrrr..",
+    "......kkk.kkkkkkkkkkkkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk..",
+    ".....wkkk.kkkkkkkkkkkdddddddkkdkddkddddddddddddddddddddddddddddddkddkdkdkkkkkkkkkkdddddddkkkkkkkkkkkkkkkkk..",
+    ".....wkkk.kddkkkkkkdddkkkkkdddkkkkkkdkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkkdkkkkkkkkdddkkkkkdddkkkkkkkkkkkkk..kk",
+    "....wkkk..kddkkkkkddkkkkkkkkkddkkkkkdkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkdkkkkkkkkddkkkkkkkkkddkkkkkkkkkkk.kkkk",
+    "...wkkkk..kkkkkkkddkkkkkkkkkkkddkkkkdkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkdkkkkkkkddkkkkkkkkkkkddkkkkkkkkkkkkkkk",
+    "..........kkkkkkkdkkkkdddddkkkkdkkkkdkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkdkkkkkkkdkkkkdddddkkkkdkkkkkkkkkkkkkkk",
+    ".........wkkkkkkddkkkdkkkkkdkkkddkkkdkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkdkkkkkkddkkkdkkkkkdkkkddkkkkkkkkkkkkkk",
+    ".........wkkkkkkdkkkdkkdddkkdkkkdkkkdkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkdkkkkkkdkkkdkkdddkkdkkkdkkkkkkkkkkkkkk",
+    "..........wkkkkk.kkkdkddkddkdkkkdddddddddddddddddddddddddddddddddddddddddddd..kkkdkddkddkdkkk.kkkkkkk.......",
+    ".................kkkdkdkkkdkdkkk.kkkkdkkkkkkkkkkkkkkkkdkkkkkkkkkkkkkkkkdkkkk..kkkdkdkkkdkdkkk...............",
+    ".................kkkdkddkddkdkkk..............................................kkkdkddkddkdkkk...............",
+    ".................kkkdkkdddkkdkkk..............................................kkkdkkdddkkdkkk...............",
+    "..................kkkdkkkkkdkkk................................................kkkdkkkkkdkkk................",
+    "..................kkkkdddddkkkk................................................kkkkdddddkkkk................",
+    "...................kkkkkkkkkkk..................................................kkkkkkkkkkk.................",
+    "....................kkkkkkkkk....................................................kkkkkkkkk..................",
+    "......................kkkkk........................................................kkkkk....................",
+)
+
+
+UA_SPRITE = {
+    "dark": {"k": "#28406b", "d": "#5a8ee0", "w": "#ffd500", "r": "#ff5a3d", "x": "#ffffff"},
+    "light": {"k": "#0e1c38", "d": "#2f62b8", "w": "#ffd500", "r": "#ff3b1f", "x": "#ffffff"},
+}
+
+
+def recolor(px, palette):
+    px.cells = {p: palette.get(c, c) for p, c in px.cells.items()}
+    return px
+
+
+def pickup():
+    px = Pixels()
+    for y, row in enumerate(PICKUP):
+        for x, c in enumerate(row):
+            if c != ".":
+                px.put(x, y, c)
+    px.rect(74, 19, 80, 21, "x")
+    px.rect(76, 17, 78, 23, "x")
+    return px
+
+
+UA_BLUE = "#0057b7"
+UA_GLOWS = [(80, 30, 320, 160, UA_BLUE, 1.2), (520, 150, 360, 120, UA_YELLOW, .7), (860, 10, 240, 120, UA_BLUE, .6)]
+
+
+def ukraine(t):
+    name = t["name"]
+    h = H
+    shape = squircle(1, 1, W - 2, h - 2, R)
+    tile = squircle(20, 18, 96, 96, 30)
+    defs, layers = glow_layers(UA_GLOWS, t, h)
+    text, meta = tones(UA_BLUE, t)
+    title = "#ffffff" if name == "dark" else t["title"]
+    palette = UA_SPRITE[name]
+    lines = ["Thanks for stopping by! Please help bring peaceful skies", "back over Ukrainian cities by supporting Come Back Alive."]
+    body = "".join(f'<text x="148" y="{94 + i * 22}" font-family="{FONT}" font-size="17" fill="{text}">{l}</text>' for i, l in enumerate(lines))
+    flames = []
+    for f in range(3):
+        values = ";".join("1" if k == f else "0" for k in range(3))
+        flames.append(f'<g opacity="{1 if f == 0 else 0}"><animate attributeName="opacity" values="{values}" dur=".36s" calcMode="discrete" repeatCount="indefinite"/>{recolor(shahed(f), palette).svg(0, 0, 2.6)}</g>')
+    drone = (f'<g clip-path="url(#tile)"><g transform="translate(12 30)"><g>'
+             '<animateTransform attributeName="transform" type="translate" values="5 0;13 1.5;7 2.5;1 1.5;5 0" dur="5.2s" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1;.45 0 .55 1;.45 0 .55 1" repeatCount="indefinite"/>'
+             '<g><animateTransform attributeName="transform" type="rotate" values="-3 52 35;3 52 35;-3 52 35" dur="3.9s" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1" repeatCount="indefinite"/>'
+             f'{"".join(flames)}</g></g></g></g>')
+    size = 2.2
+    truck = recolor(pickup(), palette).svg(W - 256, h - len(PICKUP) * size, size)
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{h}" viewBox="0 0 {W} {h}">
+<defs><clipPath id="c"><path d="{shape}"/></clipPath><clipPath id="tile"><path d="{tile}"/></clipPath>{defs}</defs>
+<g clip-path="url(#c)"><rect width="{W}" height="{h}" fill="{t["bg"]}"/>{layers}{truck}</g>
+<path d="{shape}" fill="none" stroke="{t["stroke"]}" stroke-width="1.5"/>
+<path d="{tile}" fill="{t["bg2"]}" stroke="{t["stroke"]}"/>{drone}
+<text x="148" y="40" font-family="{MONO}" font-size="14" fill="{meta}"><tspan fill="{UA_YELLOW if name == "dark" else UA_BLUE}">savelife.in.ua/</tspan>dronopad</text>
+<text x="146" y="70" font-family="{FONT}" font-size="28" font-weight="700" fill="{title}">Stand with Ukraine</text>
+{body}
+<text x="{W - 67}" y="38" text-anchor="end" font-family="{FONT}" font-size="17" font-weight="700" fill="{UA_YELLOW if name == "dark" else UA_BLUE}">Donate</text>
+<path d="M{W - 61} 29.5l4.3 4.3-4.3 4.3" fill="none" stroke="{UA_YELLOW if name == "dark" else UA_BLUE}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>'''
+
+
 def write(name, svg):
     (OUT / f"{name}.svg").write_text(svg)
 
@@ -424,5 +640,6 @@ if __name__ == "__main__":
     for theme, colors in THEMES.items():
         write(f"hero-{theme}", hero(colors))
         write(f"homelab-{theme}", homelab(colors))
+        write(f"ukraine-{theme}", ukraine(colors))
         for p in PROJECTS:
             write(f"plaque-{p['slug']}-{theme}", plaque(p, colors))

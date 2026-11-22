@@ -3,6 +3,11 @@
   <img src="https://raw.githubusercontent.com/kriakiku/kriakiku/output/hero-light.svg" width="100%" alt="Jonas Danilá, senior frontend / conceptual engineer. Built my first WAP site at six, on a Siemens, under the blanket after bedtime. Still up past bedtime: by day I shake up iGaming, by night I vibe-code open source to scratch my own itches. Addicted to frontend optimization: lean delivery paths and apps that fly on potato phones. Simplifying the world by overengineering it.">
 </picture></p>
 
+<p align="center"><a href="https://savelife.in.ua/dronopad/main-eng.html"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/kriakiku/kriakiku/output/ukraine-dark.svg">
+  <img src="https://raw.githubusercontent.com/kriakiku/kriakiku/output/ukraine-light.svg" width="100%" alt="Stand with Ukraine. Thanks for stopping by! Please help bring peaceful skies back over Ukrainian cities by supporting Come Back Alive's Dronopad fundraiser.">
+</picture></a></p>
+
 ## Projects
 
 <p align="center">
