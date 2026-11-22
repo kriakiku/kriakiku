@@ -391,10 +391,10 @@ def homelab(t):
 
     rows = []
     for i, (title, role, _) in enumerate(LAB_PARTS):
-        y = (top + bottom) / 2 - (len(LAB_PARTS) - 1) * 13 + i * 26 + 5
-        rows.append(f'<circle cx="{x1 + 18}" cy="{y - 4}" r="2.5" fill="{accent}"/>')
-        rows.append(f'<text x="{x1 + 30}" y="{y}" font-family="{FONT}" font-size="15" font-weight="700" fill="{t["title"]}">{title}<tspan font-weight="400" font-size="13" fill="{meta}" dx="8">{role}</tspan></text>')
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{h - top + 2}" viewBox="0 {top - 2} {W} {h - top + 2}">
+        y = top + 26 + i * 26
+        rows.append(f'<circle cx="{x1 + 40}" cy="{y - 4}" r="2.5" fill="{accent}"/>')
+        rows.append(f'<text x="{x1 + 52}" y="{y}" font-family="{FONT}" font-size="15" font-weight="700" fill="{t["title"]}">{title}<tspan font-weight="400" font-size="13" fill="{meta}" dx="8">{role}</tspan></text>')
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{h - top + 2}" viewBox="{x0 - 1} {top - 2} {W} {h - top + 2}">
 {"".join(parts)}{"".join(rows)}
 </svg>'''
 
