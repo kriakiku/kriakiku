@@ -159,37 +159,66 @@ HERO_LINES = [
 ]
 
 
-PHI = (1 + 5 ** .5) / 2
-ICO = [(x, y, z) for a, b in ((1, PHI), (-1, PHI), (1, -PHI), (-1, -PHI)) for x, y, z in ((0, a, b), (a, b, 0), (b, 0, a))]
-ICO_EDGES = [(i, j) for i in range(12) for j in range(i + 1, 12) if abs(math.dist(ICO[i], ICO[j]) - 2) < 1e-6]
-SPIN, FRAMES = 48, 120
+def tape_roll(outer=.92, inner=.5, core=.6, width=.82, sides=16):
+    lines = []
+    half = width / 2
+
+    def circle(radius, z, role):
+        return ([(radius * math.sin(2 * math.pi * k / sides), radius * math.cos(2 * math.pi * k / sides), z) for k in range(sides)], True, role)
+
+    for z in (-half, half):
+        lines += [circle(outer, z, "tape"), circle(core, z, "core"), circle(inner, z, "core"), circle(.76, z, "layer")]
+    for k in range(0, sides, sides // 4):
+        a = 2 * math.pi * k / sides + .25
+        lines.append(([(outer * math.sin(a), outer * math.cos(a), -half), (outer * math.sin(a), outer * math.cos(a), half)], False, "tape"))
+        lines.append(([(inner * math.sin(a), inner * math.cos(a), -half), (inner * math.sin(a), inner * math.cos(a), half)], False, "core"))
+    a = .5
+    x, y = outer * math.sin(a), outer * math.cos(a)
+    for z in (-half, half):
+        lines.append(([(x, y, z), (x - .03, y + .3, z), (x - .12, y + .58, z)], False, "tape"))
+    teeth = [(x - .12 + (.04 if i % 2 else 0), y + .58 + (.06 if i % 2 else 0), -half + width * i / 8) for i in range(9)]
+    lines.append((teeth, False, "tape"))
+    return lines
 
 
-def solid(cx, cy, radius, color):
-    tilt = math.radians(24)
+TAPE = tape_roll()
+TAPE_COLORS = {"dark": {"tape": "#c9d1d9", "layer": "#8b949e", "core": "#d4a373"}, "light": {"tape": "#57606a", "layer": "#8c959f", "core": "#a87444"}}
+SPIN, FRAMES = 30, 50
+
+
+def solid(cx, cy, size, palette):
+    scale = size / 2
     frames = []
     for f in range(FRAMES + 1):
         a = 2 * math.pi * f / FRAMES
-        roll = tilt + 2 * a
-        points = []
-        for x, y, z in ICO:
-            x, z = x * math.cos(3 * a) + z * math.sin(3 * a), -x * math.sin(3 * a) + z * math.cos(3 * a)
-            y, z = y * math.cos(roll) - z * math.sin(roll), y * math.sin(roll) + z * math.cos(roll)
-            k = radius / 1.902 / (1 - z * .08)
-            points.append((cx + x * k, cy + y * k, z / 1.902))
-        frames.append(points)
+        tilt = math.radians(18 + 12 * math.sin(a))
+        sway = math.radians(8 * math.sin(2 * a + 1))
+        shapes = []
+        for points, _, _ in TAPE:
+            out = []
+            for x, y, z in points:
+                x, z = x * math.cos(a) + z * math.sin(a), -x * math.sin(a) + z * math.cos(a)
+                y, z = y * math.cos(tilt) - z * math.sin(tilt), y * math.sin(tilt) + z * math.cos(tilt)
+                x, y = x * math.cos(sway) - y * math.sin(sway), x * math.sin(sway) + y * math.cos(sway)
+                k = scale / (1 - z * .12)
+                out.append((cx + x * k, cy + y * k, z))
+            shapes.append(out)
+        frames.append(shapes)
     times = ";".join(f"{f / FRAMES:.4f}" for f in range(FRAMES + 1))
-    edges = []
-    for i, j in ICO_EDGES:
-        shapes = ";".join(f"M{fr[i][0]:.1f} {fr[i][1]:.1f}L{fr[j][0]:.1f} {fr[j][1]:.1f}" for fr in frames)
-        depth = ";".join(f"{.18 + .72 * (1 + (fr[i][2] + fr[j][2]) / 2) / 2:.2f}" for fr in frames)
-        first = frames[0]
-        edges.append(
-            f'<path d="M{first[i][0]:.1f} {first[i][1]:.1f}L{first[j][0]:.1f} {first[j][1]:.1f}" stroke="{color}" stroke-width="1.3" stroke-linecap="round">'
+
+    def d(points, closed):
+        return "M" + "L".join(f"{x:.1f} {y:.1f}" for x, y, _ in points) + ("Z" if closed else "")
+
+    paths = []
+    for n, (_, closed, role) in enumerate(TAPE):
+        shapes = ";".join(d(fr[n], closed) for fr in frames)
+        depth = ";".join(f"{.3 + .6 * (1 + max(-1, min(1, sum(z for _, _, z in fr[n]) / len(fr[n]) * 1.6))) / 2:.2f}" for fr in frames)
+        paths.append(
+            f'<path d="{d(frames[0][n], closed)}" fill="none" stroke="{palette[role]}" stroke-width="{1.4 if role != "layer" else .8}" stroke-linejoin="round" stroke-linecap="round">'
             f'<animate attributeName="d" values="{shapes}" keyTimes="{times}" dur="{SPIN}s" repeatCount="indefinite"/>'
             f'<animate attributeName="stroke-opacity" values="{depth}" keyTimes="{times}" dur="{SPIN}s" repeatCount="indefinite"/></path>'
         )
-    return "".join(edges)
+    return "".join(paths)
 
 
 def hero(t):
@@ -214,7 +243,7 @@ def hero(t):
 <text x="44" y="134" font-family="{FONT}" font-size="18" font-weight="600" fill="{HERO_ACCENT[t["name"]]}">{HERO_ROLE}</text>
 <text x="42" y="106" font-family="{FONT}" font-size="50" font-weight="700" fill="{t["title"]}">Jonas Danilá</text>
 {body}
-{solid(796, 84, 43, HERO_ACCENT[t["name"]])}
+{solid(794, 88, 86, TAPE_COLORS[t["name"]])}
 </svg>'''
 
 
