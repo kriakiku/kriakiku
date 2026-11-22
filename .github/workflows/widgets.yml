@@ -21,6 +21,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Project plaques
+        run: python3 scripts/render.py dist
+
       - name: Contribution snake
         run: |
           npm install --no-save --no-package-lock generate-snake-animation@3.5.0

@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
+import datetime
 import math
 import pathlib
 import re
 import subprocess
+import sys
+import zoneinfo
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "assets"
@@ -38,16 +41,14 @@ def squircle(x, y, w, h, r, n=5, steps=12):
     return "M" + "L".join(f"{px:.1f} {py:.1f}" for px, py in pts) + "Z"
 
 
-EVENTIDE = (
-    '<rect x="8" y="10" width="48" height="46" rx="11" fill="#f2f0f8"/>'
-    '<path d="M8 21a11 11 0 0 1 11-11h26a11 11 0 0 1 11 11v3H8z" fill="#7f77dd"/>'
-    '<rect x="20" y="5" width="4" height="10" rx="2" fill="#4b4499"/><rect x="40" y="5" width="4" height="10" rx="2" fill="#4b4499"/>'
-    '<clipPath id="sheet"><rect x="8" y="10" width="48" height="46" rx="11"/></clipPath>'
-    '<g clip-path="url(#sheet)"><g class="tide">'
-    '<path d="M-40 42q8-5 16 0t16 0t16 0t16 0t16 0t16 0t16 0t16 0V64H-40z" fill="#e0704a"/>'
-    '<path d="M-40 46q8-4 16 0t16 0t16 0t16 0t16 0t16 0t16 0t16 0V64H-40z" fill="#7f77dd" fill-opacity=".85"/>'
-    '</g></g><circle cx="22" cy="32" r="3" fill="#7f77dd"/><circle cx="32" cy="32" r="3" fill="#e0704a"/><circle cx="42" cy="32" r="3" fill="#c9c5ea"/>'
-)
+def eventide(t):
+    day = datetime.datetime.now(zoneinfo.ZoneInfo("Europe/Vilnius"))
+    return (
+        f'<path d="{squircle(9, 4, 46, 56, 12)}" fill="{t["ev_tile"]}" stroke="#7f77dd" stroke-width="1.5"/>'
+        f'<text x="32" y="21" text-anchor="middle" font-family="{FONT}" font-size="12.5" fill="{t["ev_t2"]}">{day:%a}</text>'
+        f'<line x1="10" x2="54" y1="27" y2="27" stroke="{t["ev_rule"]}" stroke-width="1"/>'
+        f'<text x="32" y="51" text-anchor="middle" font-family="{FONT}" font-size="21" font-weight="600" fill="{t["ev_t1"]}">{day.day}</text>'
+    )
 
 
 def holtkeeper_eyes(icon):
@@ -60,30 +61,35 @@ def holtkeeper_eyes(icon):
 
 PROJECTS = [
     dict(slug="holtdroid", url="https://github.com/holtdroid", repo="holtdroid/holtdroid", title="Holtdroid", accent=GREEN,
+         glows=[(60, 40, 300, 150, GREEN, 1), (430, 150, 320, 110, "#14b8a6", .7), (800, -10, 200, 110, "#a3e635", .45)],
          text="Self-hosted Android sandboxes in a browser tab for APK and WebView testing.",
          icon=HOLTDROID.replace('<path d="M20 16l-4-7M44 16l4-7"', '<path class="ant" d="M20 16l-4-7M44 16l4-7"'),
          css=".ant{transform-origin:32px 17px;animation:wiggle 4s ease-in-out infinite}"
              "@keyframes wiggle{0%,80%,100%{transform:rotate(0)}85%{transform:rotate(-8deg)}90%{transform:rotate(7deg)}95%{transform:rotate(-4deg)}}"),
     dict(slug="holtkeeper", url="https://github.com/holtkeeper", repo="holtkeeper/holtkeeper", title="Holtkeeper", accent=ORANGE,
+         glows=[(70, 110, 300, 150, ORANGE, 1), (470, -20, 300, 110, "#ffb547", .65), (830, 140, 220, 120, "#f43f5e", .5)],
          text="AI review, dependency updates, audits and releases for a fleet of Git repositories.",
          icon=holtkeeper_eyes(HOLTKEEPER),
          css=".eye{transform-origin:32px 32px;animation:blink 5s infinite}"
              "@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}"),
     dict(slug="favicons", url="https://favicons.page", repo="peleda-app/favicons", title="favicons.page", accent="#e8613c",
+         glows=[(40, 70, 280, 160, "#e8613c", 1), (380, -30, 300, 100, "#fbbf24", .55), (790, 150, 260, 120, FUCHSIA, .55)],
          text="Any website’s icon as a clean, sandboxed SVG with light and dark theme colours.",
          icon='<rect width="64" height="64" rx="16" fill="#141416"/><path d="M8 52V24a8 8 0 0 1 8-8h20a8 8 0 0 1 7.2 4.5L48 30h0a4 4 0 0 0 3.6 2.2H56V52Z" fill="#fbf0df"/><rect class="dot" x="15" y="22" width="14" height="14" rx="4" fill="#e8613c"/><rect x="33" y="27" width="10" height="4" rx="2" fill="#141416" opacity=".25"/>',
          css=".dot{animation:hue 6s steps(1) infinite}"
              "@keyframes hue{0%{fill:#e8613c}25%{fill:#3ddc84}50%{fill:#7f77dd}75%{fill:#ffb547}}"),
     dict(slug="eventide", url="https://github.com/kriakiku/eventide-card", repo="kriakiku/eventide-card", title="Eventide", accent="#7f77dd",
+         glows=[(80, 20, 300, 150, "#7f77dd", 1), (420, 160, 300, 110, "#e0704a", .6), (820, 0, 220, 120, "#4f46e5", .6)],
          text="A Home Assistant calendar card where events rise before they start and ebb while they run.",
-         icon=EVENTIDE,
-         css=".tide{animation:tide 7s ease-in-out infinite}"
-             "@keyframes tide{0%,100%{transform:translate(0,4px)}50%{transform:translate(-16px,-9px)}}"),
+         icon=eventide,
+         css=""),
 ]
 
 THEMES = {
-    "dark": dict(bg="#16131a", bg2="#1f1a24", stroke="#2c2632", title="#faf7fc", text="#bdb4c6", meta="#8a8094", glow=".30"),
-    "light": dict(bg="#ffffff", bg2="#f7f4f9", stroke="#e6e0ea", title="#1a1520", text="#4f4757", meta="#857c8e", glow=".16"),
+    "dark": dict(bg="#16131a", bg2="#1f1a24", stroke="#2c2632", title="#faf7fc", text="#bdb4c6", meta="#8a8094", glow=.34,
+                 ev_tile="#1c1b24", ev_t1="#f2f0f8", ev_t2="#aba8b8", ev_rule="#3c3a49"),
+    "light": dict(bg="#ffffff", bg2="#f7f4f9", stroke="#e6e0ea", title="#1a1520", text="#4f4757", meta="#857c8e", glow=.2,
+                 ev_tile="#ffffff", ev_t1="#1f1d2b", ev_t2="#6a6778", ev_rule="#e4e2ee"),
 }
 
 
@@ -99,21 +105,25 @@ def wrap(text, width=58):
 
 
 def plaque(p, t):
-    icon = p["icon"]
+    icon = p["icon"](t) if callable(p["icon"]) else p["icon"]
+    glows = "".join(
+        f'<radialGradient id="g{i}" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate({x} {y}) scale({rx} {ry})">'
+        f'<stop stop-color="{c}" stop-opacity="{t["glow"] * k:.2f}"/><stop offset=".55" stop-color="{c}" stop-opacity="{t["glow"] * k * .35:.2f}"/><stop offset="1" stop-color="{c}" stop-opacity="0"/></radialGradient>'
+        for i, (x, y, rx, ry, c, k) in enumerate(p["glows"])
+    )
+    layers = "".join(f'<rect class="d{i}" x="-200" y="-100" width="{W + 400}" height="{H + 200}" fill="url(#g{i})"/>' for i in range(len(p["glows"])))
     shape = squircle(1, 1, W - 2, H - 2, R)
     tile = squircle(20, 18, 96, 96, 30)
     a = p["accent"]
     body = "".join(f'<text x="148" y="{94 + i * 22}" font-family="{FONT}" font-size="17" fill="{t["text"]}">{l}</text>' for i, l in enumerate(wrap(p["text"])))
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">
 <style>{p["css"]}
-.glow{{animation:drift 9s ease-in-out infinite alternate}}@keyframes drift{{from{{transform:translateX(0)}}to{{transform:translateX(120px)}}}}
-.sheen{{animation:sheen 8s ease-in-out infinite}}@keyframes sheen{{0%,70%{{transform:translateX(-260px)}}100%{{transform:translateX({W + 260}px)}}}}
+.d0{{animation:a0 11s ease-in-out infinite alternate}}.d1{{animation:a1 14s ease-in-out infinite alternate}}.d2{{animation:a2 9s ease-in-out infinite alternate}}
+@keyframes a0{{to{{transform:translate(90px,10px)}}}}@keyframes a1{{to{{transform:translate(-120px,-14px)}}}}@keyframes a2{{to{{transform:translate(-60px,18px)}}}}
 @media (prefers-reduced-motion:reduce){{*{{animation:none!important}}}}</style>
 <defs><clipPath id="c"><path d="{shape}"/></clipPath>
-<radialGradient id="g" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(70 66) scale(260 160)"><stop stop-color="{a}" stop-opacity="{t["glow"]}"/><stop offset="1" stop-color="{a}" stop-opacity="0"/></radialGradient>
-<linearGradient id="s" x1="0" x2="1"><stop stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".06"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
-<g clip-path="url(#c)"><rect width="{W}" height="{H}" fill="{t["bg"]}"/><rect class="glow" x="-120" width="{W}" height="{H}" fill="url(#g)"/>
-<rect class="sheen" width="200" height="{H}" fill="url(#s)" transform="skewX(-20)"/></g>
+{glows}</defs>
+<g clip-path="url(#c)"><rect width="{W}" height="{H}" fill="{t["bg"]}"/>{layers}</g>
 <path d="{shape}" fill="none" stroke="{t["stroke"]}" stroke-width="1.5"/>
 <path d="{tile}" fill="{t["bg2"]}" stroke="{t["stroke"]}"/>
 <svg x="32" y="30" width="72" height="72" viewBox="0 0 64 64">{icon}</svg>
@@ -176,8 +186,11 @@ def write(name, svg, png=None):
         subprocess.run(["rsvg-convert", "-w", str(png), "-o", str(OUT / f"{name}.png"), str(path)], check=True)
 
 
-OUT.mkdir(parents=True, exist_ok=True)
-write("banner", banner(), 1280)
-for p in PROJECTS:
-    for theme, colors in THEMES.items():
-        write(f"plaque-{p['slug']}-{theme}", plaque(p, colors))
+if len(sys.argv) > 1:
+    OUT = pathlib.Path(sys.argv[1])
+    OUT.mkdir(parents=True, exist_ok=True)
+    for p in PROJECTS:
+        for theme, colors in THEMES.items():
+            write(f"plaque-{p['slug']}-{theme}", plaque(p, colors))
+else:
+    write("banner", banner(), 1280)
