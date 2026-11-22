@@ -164,20 +164,19 @@ def tape_roll(outer=.92, inner=.5, core=.6, width=.82, sides=16):
     half = width / 2
 
     def circle(radius, z, role):
-        return ([(radius * math.sin(2 * math.pi * k / sides), radius * math.cos(2 * math.pi * k / sides), z) for k in range(sides)], True, role)
+        return ([(radius * math.sin(2 * math.pi * k / sides), radius * math.cos(2 * math.pi * k / sides), z) for k in range(sides)], True, role, True)
 
     for z in (-half, half):
         lines += [circle(outer, z, "tape"), circle(core, z, "core"), circle(inner, z, "core"), circle(.76, z, "layer")]
     for k in range(0, sides, sides // 4):
         a = 2 * math.pi * k / sides + .25
-        lines.append(([(outer * math.sin(a), outer * math.cos(a), -half), (outer * math.sin(a), outer * math.cos(a), half)], False, "tape"))
-        lines.append(([(inner * math.sin(a), inner * math.cos(a), -half), (inner * math.sin(a), inner * math.cos(a), half)], False, "core"))
-    a = .5
-    x, y = outer * math.sin(a), outer * math.cos(a)
+        lines.append(([(outer * math.sin(a), outer * math.cos(a), -half), (outer * math.sin(a), outer * math.cos(a), half)], False, "tape", True))
+        lines.append(([(inner * math.sin(a), inner * math.cos(a), -half), (inner * math.sin(a), inner * math.cos(a), half)], False, "core", True))
+    x = outer
     for z in (-half, half):
-        lines.append(([(x, y, z), (x - .03, y + .3, z), (x - .12, y + .58, z)], False, "tape"))
-    teeth = [(x - .12 + (.04 if i % 2 else 0), y + .58 + (.06 if i % 2 else 0), -half + width * i / 8) for i in range(9)]
-    lines.append((teeth, False, "tape"))
+        lines.append(([(x, 0, z), (x + .02, .55, z), (x - .01, 1.2, z)], False, "tape", False))
+    teeth = [(x - .01 + (.035 if i % 2 else 0), 1.2 + (.07 if i % 2 else 0), -half + width * i / 8) for i in range(9)]
+    lines.append((teeth, False, "tape", False))
     return lines
 
 
@@ -191,17 +190,20 @@ def solid(cx, cy, size, palette):
     frames = []
     for f in range(FRAMES + 1):
         a = 2 * math.pi * f / FRAMES
-        tilt = math.radians(18 + 12 * math.sin(a))
-        sway = math.radians(8 * math.sin(2 * a + 1))
+        yaw = math.radians(28 + 38 * math.sin(a))
+        tilt = math.radians(12 + 6 * math.sin(2 * a + .6))
+        spin = math.radians(18 * math.sin(a + .9))
+        bob = 2.5 * math.sin(2 * a)
         shapes = []
-        for points, _, _ in TAPE:
+        for points, _, _, spins in TAPE:
             out = []
             for x, y, z in points:
-                x, z = x * math.cos(a) + z * math.sin(a), -x * math.sin(a) + z * math.cos(a)
+                if spins:
+                    x, y = x * math.cos(spin) - y * math.sin(spin), x * math.sin(spin) + y * math.cos(spin)
+                x, z = x * math.cos(yaw) + z * math.sin(yaw), -x * math.sin(yaw) + z * math.cos(yaw)
                 y, z = y * math.cos(tilt) - z * math.sin(tilt), y * math.sin(tilt) + z * math.cos(tilt)
-                x, y = x * math.cos(sway) - y * math.sin(sway), x * math.sin(sway) + y * math.cos(sway)
                 k = scale / (1 - z * .12)
-                out.append((cx + x * k, cy + y * k, z))
+                out.append((cx + x * k, cy + bob + y * k, z))
             shapes.append(out)
         frames.append(shapes)
     times = ";".join(f"{f / FRAMES:.4f}" for f in range(FRAMES + 1))
@@ -210,7 +212,7 @@ def solid(cx, cy, size, palette):
         return "M" + "L".join(f"{x:.1f} {y:.1f}" for x, y, _ in points) + ("Z" if closed else "")
 
     paths = []
-    for n, (_, closed, role) in enumerate(TAPE):
+    for n, (_, closed, role, _) in enumerate(TAPE):
         shapes = ";".join(d(fr[n], closed) for fr in frames)
         depth = ";".join(f"{.3 + .6 * (1 + max(-1, min(1, sum(z for _, _, z in fr[n]) / len(fr[n]) * 1.6))) / 2:.2f}" for fr in frames)
         paths.append(
@@ -243,7 +245,7 @@ def hero(t):
 <text x="44" y="134" font-family="{FONT}" font-size="18" font-weight="600" fill="{HERO_ACCENT[t["name"]]}">{HERO_ROLE}</text>
 <text x="42" y="106" font-family="{FONT}" font-size="50" font-weight="700" fill="{t["title"]}">Jonas Danilá</text>
 {body}
-{solid(794, 88, 86, TAPE_COLORS[t["name"]])}
+{solid(784, 76, 76, TAPE_COLORS[t["name"]])}
 </svg>'''
 
 
