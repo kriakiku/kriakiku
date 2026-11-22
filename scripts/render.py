@@ -249,6 +249,170 @@ def hero(t):
 </svg>'''
 
 
+LAB_ACCENT = {"dark": "#7aa2ff", "light": "#3156c8"}
+LAB_GLOWS = [(160, 120, 420, 240, "#3b82f6", .9), (640, 330, 380, 160, "#8b5cf6", .45), (840, 30, 260, 160, "#22d3ee", .4)]
+LAB_PARTS = [
+    ("UniFi Dream Router 7", "router, Wi-Fi 7", 120),
+    ("UniFi Flex 2.5G Mini", "2.5G switch", 142),
+    ("Tenda 8× 2.5G + 2× 10G SFP+", "core switch, 10G uplink", 164),
+    ("3× HP EliteDesk G4 Mini", "compute nodes, 2.5G + 1G", 270),
+    ("AOOSTAR WTR PRO", "NAS, Ryzen 7 5825U, 5G LAG", 316),
+]
+
+
+def led(x, y, color, period, delay=0, r=1.6):
+    return (f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{r}" fill="{color}"><animate attributeName="opacity" values="1;.25;1;1" keyTimes="0;.2;.35;1" '
+            f'dur="{period}s" begin="{delay}s" repeatCount="indefinite"/></circle>')
+
+
+def cable(x1, y1, x2, y2, sag, color, period, delay=0):
+    def d(extra):
+        return f"M{x1} {y1}C{x1} {y1 + sag + extra:.1f} {x2} {y2 - abs(y2 - y1) * .35 + extra:.1f} {x2} {y2}"
+    return (f'<path d="{d(0)}" fill="none" stroke="{color}" stroke-width="2.2" stroke-linecap="round" opacity=".92">'
+            f'<animate attributeName="d" values="{d(0)};{d(5)};{d(0)}" keyTimes="0;.5;1" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1" '
+            f'dur="{period}s" begin="{delay}s" repeatCount="indefinite"/></path>')
+
+
+def side_cable(x1, y1, x2, y2, reach, color, period, delay=0):
+    def d(extra):
+        return f"M{x1} {y1}C{x1} {y1 + 6} {x2 + reach + extra:.1f} {y1 + 6} {x2 + reach + extra:.1f} {(y1 + y2) / 2:.1f}S{x2 + 6} {y2} {x2} {y2}"
+    return (f'<path d="{d(0)}" fill="none" stroke="{color}" stroke-width="2.2" stroke-linecap="round" opacity=".92">'
+            f'<animate attributeName="d" values="{d(0)};{d(3)};{d(0)}" keyTimes="0;.5;1" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1" '
+            f'dur="{period}s" begin="{delay}s" repeatCount="indefinite"/></path>')
+
+
+def homelab(t):
+    h = 372
+    name = t["name"]
+    accent = LAB_ACCENT[name]
+    text, meta = tones(accent, t)
+    shape = squircle(1, 1, W - 2, h - 2, R)
+    glows = "".join(
+        f'<radialGradient id="g{i}" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate({x} {y}) scale({rx} {ry})">'
+        f'<stop stop-color="{c}" stop-opacity="{t["glow"] * k:.2f}"/><stop offset=".55" stop-color="{c}" stop-opacity="{t["glow"] * k * .35:.2f}"/><stop offset="1" stop-color="{c}" stop-opacity="0"/></radialGradient>'
+        for i, (x, y, rx, ry, c, k) in enumerate(LAB_GLOWS)
+    )
+    layers = "".join(f'<rect x="-200" y="-100" width="{W + 400}" height="{h + 200}" fill="url(#g{i})"/>' for i in range(len(LAB_GLOWS)))
+    dark = name == "dark"
+    frame, inner, rail, hole = ("#2a2e35", "#121418", "#3a3f47", "#0b0c0e") if dark else ("#3a3f47", "#1c1f24", "#4a5059", "#101215")
+    green, blue = "#4ade80", "#60a5fa"
+    x0, x1, top, bottom = 48, 470, 66, 352
+    parts = [f'''<defs><linearGradient id="pill" x1="0" x2="1"><stop stop-color="#cfd4d9"/><stop offset=".45" stop-color="#ffffff"/><stop offset="1" stop-color="#c4c9ce"/></linearGradient>
+<linearGradient id="metal" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#3a3f46"/><stop offset="1" stop-color="#1f2226"/></linearGradient>
+<linearGradient id="gun" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#4b5058"/><stop offset="1" stop-color="#2a2d32"/></linearGradient>
+<linearGradient id="silver" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#f3f4f6"/><stop offset=".5" stop-color="#d1d5db"/><stop offset="1" stop-color="#e5e7eb"/></linearGradient>
+<pattern id="perf" width="4" height="4" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".8" fill="#14161a"/></pattern></defs>''']
+    parts.append(f'<rect x="{x0}" y="{top}" width="{x1 - x0}" height="{bottom - top}" rx="10" fill="{frame}"/>')
+    parts.append(f'<rect x="{x0 + 10}" y="{top + 10}" width="{x1 - x0 - 20}" height="{bottom - top - 20}" rx="4" fill="{inner}"/>')
+    for rx_ in (x0 + 10, x1 - 22):
+        parts.append(f'<rect x="{rx_}" y="{top + 10}" width="12" height="{bottom - top - 20}" fill="{rail}"/>')
+        parts.append("".join(f'<rect x="{rx_ + 4}" y="{y}" width="4" height="4" rx=".8" fill="{hole}"/>' for y in range(top + 16, bottom - 14, 11)))
+    ix0, ix1 = x0 + 26, x1 - 26
+
+    shelf = 178
+    parts.append(f'<rect x="{ix0}" y="{shelf}" width="{ix1 - ix0}" height="4" fill="{rail}"/>')
+    rear = []
+    ux, uw, uh = 90, 62, 104
+    uy = shelf - uh
+    cap = 15
+    rear.append(f'<path d="M{ux} {uy + cap + 2}V{shelf - 22}a22 22 0 0 0 22 22h{uw - 44}a22 22 0 0 0 22 -22V{uy + cap + 2}Z" fill="url(#pill)"/>')
+    rear.append(f'<path d="M{ux + 1} {uy + cap}C{ux + 2} {uy + 2} {ux + uw - 2} {uy + 2} {ux + uw - 1} {uy + cap}Z" fill="url(#pill)"/>')
+    rear.append(f'<rect x="{ux}" y="{uy + cap}" width="{uw}" height="2.4" rx="1.2" fill="#3b9bff"><animate attributeName="opacity" values=".55;1;.55" dur="4s" repeatCount="indefinite"/></rect>')
+    rear.append(f'<rect x="{ux - 2}" y="{uy + cap - 1.5}" width="{uw + 4}" height="5.4" rx="2.7" fill="#3b9bff" opacity=".18"/>')
+    rear.append(f'<rect x="{ux + uw / 2 - 4.5}" y="{uy + 52}" width="9" height="20" rx="4.5" fill="#0f2a6b"/><rect x="{ux + uw / 2 - 3}" y="{uy + 56}" width="6" height="1.4" rx=".7" fill="#e0f2fe"/>'
+                 f'<rect x="{ux + uw / 2 - 3}" y="{uy + 59.5}" width="4" height="1.2" rx=".6" fill="#7dd3fc"/><path d="M{ux + uw / 2 - 4.5} {uy + 67}q4.5 -3 9 0v1.5a4.5 4.5 0 0 1 -9 0Z" fill="#2563eb"/>')
+    rear.append(f'<rect x="{ux + 10}" y="{shelf - 2.5}" width="{uw - 20}" height="2.5" rx="1.2" fill="#000" opacity=".25"/>')
+
+    tx, tw, th = 160, 158, 34
+    ty = shelf - th
+    parts.append(f'<rect x="{tx}" y="{ty}" width="{tw}" height="{th}" rx="2" fill="url(#metal)"/><rect x="{tx}" y="{ty}" width="{tw}" height="1" fill="#5a616a"/>')
+    parts.append(f'<text x="{tx + 4}" y="{ty + 11}" font-family="{FONT}" font-size="6" font-style="italic" font-weight="800" fill="#e5e7eb">Tenda</text>'
+                 f'<rect x="{tx + 6}" y="{ty + 13}" width="5" height="9" rx="1" fill="#0d0f12"/><rect x="{tx + 6.8}" y="{ty + 18}" width="3.4" height="3" rx=".6" fill="#6b7280"/>' + led(tx + 16, ty + 19, "#4ade80", 9, 0, .9))
+    ports = [tx + 21 + i * 11.6 + (3 if i >= 4 else 0) for i in range(8)]
+    for g in (ports[:4], ports[4:]):
+        parts.append(f'<rect x="{g[0] - 1:.1f}" y="{ty + 11}" width="{g[-1] - g[0] + 12:.1f}" height="12" rx="1" fill="#9ca3af"/>')
+    parts.append("".join(f'<rect x="{x:.1f}" y="{ty + 13}" width="10" height="10" rx=".6" fill="#0d0f12"/><rect x="{x + 2.5:.1f}" y="{ty + 21}" width="5" height="1" fill="#6b7280"/>' for x in ports))
+    parts.append("".join(led(x + 1.8, ty + 14.3, "#4ade80", .8 + (i * .29) % 1.3, i * .13, .6) + led(x + 8.2, ty + 14.3, "#fb923c" if i % 3 == 0 else "#4ade80", 1.3 + (i * .41) % 1.1, i * .21, .6) for i, x in enumerate(ports)))
+    parts.append("".join(f'<text x="{x + 5:.1f}" y="{ty + 29.5}" text-anchor="middle" font-family="{FONT}" font-size="3.6" fill="#d1d5db">{i + 1}</text>' for i, x in enumerate(ports)))
+    sfp = [tx + 122 + i * 15 for i in range(2)]
+    parts.append(f'<rect x="{sfp[0] - 1}" y="{ty + 6}" width="29" height="3.4" rx=".5" fill="#f3f4f6"/>')
+    parts.append(f'<rect x="{sfp[0] - 1}" y="{ty + 12}" width="29" height="11" rx=".6" fill="#9ca3af"/>')
+    parts.append("".join(f'<rect x="{x}" y="{ty + 13}" width="13" height="9" rx=".5" fill="#0d0f12"/>' for x in sfp))
+    parts.append("".join(led(x + 6, ty + 26.5, "#4ade80", 1.7 + i * .6, i * .4, .6) for i, x in enumerate(sfp)))
+
+    parts.append(f'<rect x="{ix0}" y="192" width="{ix1 - ix0}" height="16" rx="2" fill="#1a1d22" stroke="#3b4048"/>')
+    parts.append(f'<rect x="{ix0 + 14}" y="198" width="{ix1 - ix0 - 28}" height="4" rx="2" fill="#0b0c0e"/>')
+
+    floor = 330
+    parts.append(f'<rect x="{ix0}" y="{floor}" width="{ix1 - ix0}" height="4" fill="{rail}"/>')
+    ex, ew, eh = 80, 112, 22
+    minis = []
+    for n in range(3):
+        y = floor - eh - n * (eh + 2)
+        minis.append(y)
+        top_h = eh * .5
+        rear.append(f'<rect x="{ex}" y="{y}" width="{ew}" height="{eh}" rx="3" fill="#1b1d21"/>')
+        rear.append(f'<clipPath id="vent{n}"><rect x="{ex + 3}" y="{y + 2}" width="{ew - 6}" height="{top_h - 3}" rx="2"/></clipPath>')
+        rear.append(f'<g clip-path="url(#vent{n})">' + "".join(f'<path d="M{ex + 3 + k * 3.6:.1f} {y + top_h}l5 {-top_h}" stroke="#050607" stroke-width="1.6"/>' for k in range(-2, 32)) + "</g>")
+        rear.append(f'<path d="M{ex} {y + top_h}H{ex + ew}V{y + eh - 3}a3 3 0 0 1 -3 3H{ex + 3}a3 3 0 0 1 -3 -3Z" fill="url(#silver)"/>')
+        cy_ = y + top_h + (eh - top_h) / 2
+        rear.append(f'<circle cx="{ex + 7}" cy="{cy_:.1f}" r="3" fill="none" stroke="#8a9098" stroke-width=".7"/><text x="{ex + 7}" y="{cy_ + 1.5:.1f}" text-anchor="middle" font-family="{FONT}" font-size="3.6" font-style="italic" font-weight="700" fill="#8a9098">hp</text>')
+        rear.append(f'<text x="{ex + 13}" y="{cy_ + 1.4:.1f}" font-family="{FONT}" font-size="3.4" letter-spacing=".6" fill="#4b5563">ELITEDESK</text>')
+        rear.append(f'<rect x="{ex + 38}" y="{cy_ - .9:.1f}" width="5" height="1.8" rx=".9" fill="#1f2328"/><rect x="{ex + 47}" y="{cy_ - 1.4:.1f}" width="7" height="2.8" rx=".3" fill="#1f2328"/><rect x="{ex + 57}" y="{cy_ - 1.4:.1f}" width="7" height="2.8" rx=".3" fill="#1f2328"/>'
+                     f'<circle cx="{ex + 69}" cy="{cy_:.1f}" r="1.2" fill="#1f2328"/><circle cx="{ex + 75}" cy="{cy_:.1f}" r="1.2" fill="#1f2328"/>')
+        rear.append(led(ex + 82, cy_, "#f8fafc", 2.6 + n * .7, n * .5, .6))
+        rear.append(f'<rect x="{ex + ew - 18}" y="{cy_ - 2.4:.1f}" width="13" height="4.8" rx="1" fill="none" stroke="#6b7280" stroke-width=".6"/><circle cx="{ex + ew - 11.5}" cy="{cy_:.1f}" r=".9" fill="none" stroke="#38bdf8" stroke-width=".4"/>')
+    fx, fw, fh = tx + 8, 64, 12
+    fy = ty - fh
+    parts.append(f'<rect x="{fx}" y="{fy}" width="{fw}" height="{fh}" rx="2.5" fill="url(#pill)"/>')
+    flex = [fx + 8 + i * 9 for i in range(5)]
+    parts.append("".join(f'<rect x="{x}" y="{fy + 4}" width="6.5" height="5" rx=".8" fill="#2b2f36"/>' for x in flex))
+    parts.append("".join(led(x + 3.25, fy + 2.2, green, 1.1 + i * .37, i * .2, .7) for i, x in enumerate(flex)))
+    parts.append(f'<circle cx="{fx + fw - 6}" cy="{fy + 6}" r="1.2" fill="{blue}"/>')
+
+    nw, nh = 100, 118
+    nx, ny = 236, floor - nh
+    rear.append(f'<rect x="{nx}" y="{ny}" width="{nw}" height="{nh}" rx="7" fill="url(#gun)"/><rect x="{nx + 6}" y="{ny + 6}" width="{nw - 12}" height="{nh - 12}" rx="3" fill="#0f1113"/>')
+    for b in range(4):
+        by = ny + 10 + b * 20
+        rear.append(f'<rect x="{nx + 10}" y="{by}" width="{nw - 20}" height="18" rx="1.5" fill="#16181b" stroke="#2c3036" stroke-width=".6"/>')
+        rear.append(f'<rect x="{nx + 14}" y="{by + 3}" width="10" height="12" rx="1" fill="#0a0b0d" stroke="#2c3036" stroke-width=".5"/>')
+        rear.append("".join(f'<rect x="{nx + 28 + k * 7}" y="{by + 4}" width="4" height="10" rx=".6" fill="#050607"/>' for k in range(5)))
+        rear.append(led(nx + 12.5, by + 6, "#4ade80", .6 + b * .23, b * .17, .8) + led(nx + 12.5, by + 12, "#60a5fa", 1.3 + b * .31, b * .29, .8))
+    rear.append(f'<rect x="{nx + 10}" y="{ny + 92}" width="{nw - 20}" height="16" rx="1" fill="url(#perf)"/>')
+    rear.append(f'<rect x="{nx + nw - 34}" y="{ny + 100}" width="20" height="7" rx="1" fill="#dc2626"/><text x="{nx + nw - 24}" y="{ny + 105.2}" text-anchor="middle" font-family="{FONT}" font-size="3.8" font-weight="800" fill="#fff">WTR PRO</text>')
+    rear.append(f'<circle cx="{nx + nw - 9}" cy="{ny + 103.5}" r="2" fill="none" stroke="#9ca3af" stroke-width=".6"/>')
+    ny_top = ny
+
+    fast, slow, lag, uplink = "#3b82f6", "#facc15", "#22c55e", "#e5e7eb"
+    stack_top = minis[2]
+    for n in range(3):
+        for k, color in enumerate((fast, slow)):
+            port = ports[n * 2 + k]
+            drop = ex + ew / 2 - 14 + (n * 2 + k) * 5.6
+            parts.append(cable(port + 5, ty + 22, drop, stack_top + 6, 18 + (n * 2 + k) * 4, color, 4.2 + n * .5 + k * .3, -(n * 2 + k) * .35))
+    parts.append(cable(ports[6] + 5, ty + 22, nx + nw - 26, ny + 24, 26, lag, 4.4, -.3))
+    parts.append(cable(ports[7] + 5, ty + 22, nx + nw - 16, ny + 24, 32, lag, 4.9, -.9))
+    up = f"M{sfp[0] + 6} {ty + 21}C{sfp[0] + 6} {shelf + 34} {ux + uw + 8} {shelf + 30} {ux + uw + 6} {shelf - 6}S{ux + uw - 10} {shelf - 20} {ux + uw - 16} {shelf - 22}"
+    parts.append(f'<path d="{up}" fill="none" stroke="{uplink}" stroke-width="2.2" stroke-linecap="round" opacity=".92"/>')
+    flex_link = f"M{flex[0] + 3.25} {fy + 9}C{flex[0] + 3.25} {fy + 16} {ux + uw + 10} {fy + 15} {ux + uw - 12} {fy + 13}"
+    parts.append(f'<path d="{flex_link}" fill="none" stroke="#f472b6" stroke-width="2.2" stroke-linecap="round" opacity=".92"/>')
+    parts.append(cable(nx + nw - 30, floor - 10, nx + nw - 40, 372, 18, "#111317", 6.0, -.2))
+    parts.extend(rear)
+
+    rows = []
+    for i, (title, role, y) in enumerate(LAB_PARTS):
+        rows.append(f'<circle cx="{x1 + 18}" cy="{y - 4}" r="2.5" fill="{accent}"/>')
+        rows.append(f'<text x="{x1 + 30}" y="{y}" font-family="{FONT}" font-size="15" font-weight="700" fill="{t["title"]}">{title}<tspan font-weight="400" font-size="13" fill="{meta}" dx="8">{role}</tspan></text>')
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{h}" viewBox="0 0 {W} {h}">
+<defs><clipPath id="c"><path d="{shape}"/></clipPath>{glows}</defs>
+<g clip-path="url(#c)"><rect width="{W}" height="{h}" fill="{t["bg"]}"/>{layers}
+<text x="{x1 + 18}" y="{56}" font-family="{MONO}" font-size="15" fill="{meta}"><tspan fill="{accent}">~/</tspan>homelab</text>
+{"".join(parts)}{"".join(rows)}</g>
+<path d="{shape}" fill="none" stroke="{t["stroke"]}" stroke-width="1.5"/>
+</svg>'''
+
+
 def write(name, svg):
     (OUT / f"{name}.svg").write_text(svg)
 
@@ -273,5 +437,6 @@ if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)
     for theme, colors in THEMES.items():
         write(f"hero-{theme}", hero(colors))
+        write(f"homelab-{theme}", homelab(colors))
         for p in PROJECTS:
             write(f"plaque-{p['slug']}-{theme}", plaque(p, colors))
