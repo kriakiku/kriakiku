@@ -3,12 +3,8 @@ import datetime
 import math
 import pathlib
 import re
-import subprocess
 import sys
 import zoneinfo
-
-ROOT = pathlib.Path(__file__).resolve().parent.parent
-OUT = ROOT / "assets"
 
 GREEN = "#3ddc84"
 ORANGE = "#ff7a1a"
@@ -90,9 +86,9 @@ PROJECTS = [
 ]
 
 THEMES = {
-    "dark": dict(bg="#16131a", bg2="#1f1a24", stroke="#2c2632", title="#faf7fc", text="#bdb4c6", meta="#8a8094", glow=.34,
+    "dark": dict(name="dark", bg="#16131a", bg2="#1f1a24", stroke="#2c2632", title="#faf7fc", text="#bdb4c6", meta="#8a8094", glow=.34,
                  ev_tile="#1c1b24", ev_t1="#f2f0f8", ev_t2="#aba8b8", ev_rule="#3c3a49"),
-    "light": dict(bg="#ffffff", bg2="#f7f4f9", stroke="#e6e0ea", title="#1a1520", text="#4f4757", meta="#857c8e", glow=.2,
+    "light": dict(name="light", bg="#ffffff", bg2="#f7f4f9", stroke="#e6e0ea", title="#1a1520", text="#4f4757", meta="#857c8e", glow=.2,
                  ev_tile="#ffffff", ev_t1="#1f1d2b", ev_t2="#6a6778", ev_rule="#e4e2ee"),
 }
 
@@ -138,63 +134,47 @@ def plaque(p, t):
 </svg>'''
 
 
-def background(w, h, glows, strip=None):
-    stops = "".join(
-        f'<radialGradient id="glow{i}" cx="{x}" cy="{y}" r="{r}" gradientUnits="userSpaceOnUse">'
-        f'<stop offset="0" stop-color="{c}" stop-opacity=".2"/><stop offset="1" stop-color="{c}" stop-opacity="0"/></radialGradient>'
-        for i, (x, y, r, c) in enumerate(glows)
+HERO_ACCENT = {"dark": "#38c8e6", "light": "#0e7490"}
+HERO_GLOWS = [(120, 40, 420, 220, "#0ea5e9", 1), (520, 260, 420, 160, "#22d3ee", .7), (860, 30, 300, 180, "#2dd4bf", .55)]
+HERO_ROLE = "Senior frontend engineer / conceptual engineer"
+HERO_LINES = [
+    "Built my first WAP site at six, on a Siemens, under the blanket after bedtime.",
+    "Still up past bedtime: by day I shake up iGaming, by night I vibe-code open",
+    "source to scratch my own itches. Simplifying the world by overengineering it.",
+]
+
+
+def hero(t):
+    h = 252
+    shape = squircle(1, 1, W - 2, h - 2, R)
+    glows = "".join(
+        f'<radialGradient id="g{i}" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate({x} {y}) scale({rx} {ry})">'
+        f'<stop stop-color="{c}" stop-opacity="{t["glow"] * k:.2f}"/><stop offset=".55" stop-color="{c}" stop-opacity="{t["glow"] * k * .35:.2f}"/><stop offset="1" stop-color="{c}" stop-opacity="0"/></radialGradient>'
+        for i, (x, y, rx, ry, c, k) in enumerate(HERO_GLOWS)
     )
-    layers = "".join(f'<rect width="{w}" height="{h}" fill="url(#glow{i})"/>' for i in range(len(glows)))
-    bar = ""
-    if strip:
-        bar = (
-            f'<linearGradient id="bar" x1="0" x2="1"><stop offset="0" stop-color="{strip[0]}"/><stop offset="1" stop-color="{strip[-1]}"/></linearGradient>'
-        )
-    return f"""<defs>
-  <clipPath id="frame"><rect width="{w}" height="{h}" rx="24"/></clipPath>
-  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-    <stop offset="0" stop-color="#0f0d12"/><stop offset="1" stop-color="#18121b"/>
-  </linearGradient>
-  <pattern id="dots" width="32" height="32" patternUnits="userSpaceOnUse">
-    <circle cx="2" cy="2" r="1.4" fill="#fff" fill-opacity=".05"/>
-  </pattern>
-  {stops}{bar}
-</defs>
-<g clip-path="url(#frame)">
-<rect width="{w}" height="{h}" fill="url(#bg)"/>
-<rect width="{w}" height="{h}" fill="url(#dots)"/>
-{layers}
-{f'<rect y="{h - 10}" width="{w}" height="10" fill="url(#bar)"/>' if strip else ""}
-</g>"""
+    layers = "".join(f'<rect class="d{i}" x="-200" y="-100" width="{W + 400}" height="{h + 200}" fill="url(#g{i})"/>' for i in range(len(HERO_GLOWS)))
+    body = "".join(f'<text x="44" y="{166 + i * 24}" font-family="{FONT}" font-size="17" fill="{t["text"]}">{l}</text>' for i, l in enumerate(HERO_LINES))
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{h}" viewBox="0 0 {W} {h}">
+<style>.d0{{animation:a0 13s ease-in-out infinite alternate}}.d1{{animation:a1 17s ease-in-out infinite alternate}}.d2{{animation:a2 11s ease-in-out infinite alternate}}
+@keyframes a0{{to{{transform:translate(120px,16px)}}}}@keyframes a1{{to{{transform:translate(-140px,-20px)}}}}@keyframes a2{{to{{transform:translate(-80px,24px)}}}}
+@media (prefers-reduced-motion:reduce){{*{{animation:none!important}}}}</style>
+<defs><clipPath id="c"><path d="{shape}"/></clipPath>{glows}</defs>
+<g clip-path="url(#c)"><rect width="{W}" height="{h}" fill="{t["bg"]}"/>{layers}</g>
+<path d="{shape}" fill="none" stroke="{t["stroke"]}" stroke-width="1.5"/>
+<text x="46" y="56" font-family="{MONO}" font-size="16" fill="{t["meta"]}"><tspan fill="{HERO_ACCENT[t["name"]]}">~/</tspan>kriakiku</text>
+<text x="44" y="134" font-family="{FONT}" font-size="18" font-weight="600" fill="{HERO_ACCENT[t["name"]]}">{HERO_ROLE}</text>
+<text x="42" y="106" font-family="{FONT}" font-size="50" font-weight="700" fill="{t["title"]}">Jonas D.</text>
+{body}
+</svg>'''
 
 
-def banner():
-    w, h = 1280, 420
-    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">
-{background(w, h, [(260, 220, 420, FUCHSIA), (900, 230, 260, GREEN), (1140, 230, 260, ORANGE)], [FUCHSIA, FUCHSIA_SOFT])}
-<text x="80" y="128" font-family="{MONO}" font-size="28" fill="#9b92a3"><tspan fill="{FUCHSIA}">~/</tspan>kriakiku</text>
-<text x="76" y="218" font-family="{FONT}" font-size="88" font-weight="700" fill="#faf7fc">Jonas D.</text>
-<text x="80" y="274" font-family="{FONT}" font-size="34" fill="#cdc5d4">Web developer from Vilnius, Lithuania.</text>
-<text x="80" y="318" font-family="{FONT}" font-size="24" fill="#958c9e">Simplifying the world around me by overengineering it :D</text>
-<g transform="translate(770 120) scale(3.6)">{HOLTDROID}</g>
-<g transform="translate(1010 120) scale(3.6)">{HOLTKEEPER}</g>
-<text x="885" y="370" text-anchor="middle" font-family="{MONO}" font-size="20" fill="#7d8f86">holtdroid</text>
-<text x="1125" y="370" text-anchor="middle" font-family="{MONO}" font-size="20" fill="#a08670">holtkeeper</text>
-</svg>"""
+def write(name, svg):
+    (OUT / f"{name}.svg").write_text(svg)
 
 
-def write(name, svg, png=None):
-    path = OUT / f"{name}.svg"
-    path.write_text(svg)
-    if png:
-        subprocess.run(["rsvg-convert", "-w", str(png), "-o", str(OUT / f"{name}.png"), str(path)], check=True)
-
-
-if len(sys.argv) > 1:
-    OUT = pathlib.Path(sys.argv[1])
-    OUT.mkdir(parents=True, exist_ok=True)
+OUT = pathlib.Path(sys.argv[1])
+OUT.mkdir(parents=True, exist_ok=True)
+for theme, colors in THEMES.items():
+    write(f"hero-{theme}", hero(colors))
     for p in PROJECTS:
-        for theme, colors in THEMES.items():
-            write(f"plaque-{p['slug']}-{theme}", plaque(p, colors))
-else:
-    write("banner", banner(), 1280)
+        write(f"plaque-{p['slug']}-{theme}", plaque(p, colors))

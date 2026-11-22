@@ -1,10 +1,7 @@
-<p align="center">
-  <img src="assets/banner.png" alt="Jonas D. — web developer from Vilnius, Lithuania, simplifying the world around him by overengineering it">
-</p>
-
-Hi, I'm Jonas, a web developer from Vilnius. Besides web apps I build tools for everyday chores:
-testing APKs on real Androids, keeping a fleet of repositories updated, reviewed and released,
-showing website icons that look right in any theme, and a calendar for my Home Assistant dashboard.
+<p align="center"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/kriakiku/kriakiku/output/hero-dark.svg">
+  <img src="https://raw.githubusercontent.com/kriakiku/kriakiku/output/hero-light.svg" width="100%" alt="Jonas D., senior frontend engineer / conceptual engineer. Built my first WAP site at six, on a Siemens, under the blanket after bedtime. Still up past bedtime: by day I shake up iGaming, by night I vibe-code open source to scratch my own itches. Simplifying the world by overengineering it.">
+</picture></p>
 
 ## Projects
 
