@@ -88,7 +88,7 @@ PROJECTS = [
 THEMES = {
     "dark": dict(name="dark", fv_glyph="#fbf0df", fv_slot="#141416", bg="#16131a", bg2="#1f1a24", stroke="#2c2632", title="#faf7fc", text="#bdb4c6", meta="#8a8094", glow=.34,
                  ev_tile="#1c1b24", ev_t1="#f2f0f8", ev_t2="#aba8b8", ev_rule="#3c3a49"),
-    "light": dict(name="light", fv_glyph="#1d1b20", fv_slot="#fbf0df", bg="#ffffff", bg2="#f7f4f9", stroke="#e6e0ea", title="#1a1520", text="#4f4757", meta="#857c8e", glow=.2,
+    "light": dict(name="light", fv_glyph="#433e4a", fv_slot="#fbf0df", bg="#ffffff", bg2="#f7f4f9", stroke="#e6e0ea", title="#1a1520", text="#4f4757", meta="#857c8e", glow=.2,
                  ev_tile="#ffffff", ev_t1="#1f1d2b", ev_t2="#6a6778", ev_rule="#e4e2ee"),
 }
 
@@ -150,16 +150,17 @@ def plaque(p, t):
 
 HERO_ACCENT = {"dark": "#38c8e6", "light": "#0e7490"}
 HERO_GLOWS = [(120, 40, 420, 220, "#0ea5e9", 1), (520, 260, 420, 160, "#22d3ee", .7), (860, 30, 300, 180, "#2dd4bf", .55)]
-HERO_ROLE = "Senior frontend engineer / conceptual engineer"
+HERO_ROLE = "Senior frontend / conceptual engineer"
 HERO_LINES = [
     "Built my first WAP site at six, on a Siemens, under the blanket after bedtime.",
-    "Still up past bedtime: by day I shake up iGaming, by night I vibe-code open",
-    "source to scratch my own itches. Simplifying the world by overengineering it.",
+    "Still up past bedtime: by day I shake up iGaming, by night I vibe-code open source",
+    "to scratch my own itches. Addicted to frontend optimization: lean delivery paths",
+    "and apps that fly on potato phones. Simplifying the world by overengineering it.",
 ]
 
 
 def hero(t):
-    h = 252
+    h = 276
     shape = squircle(1, 1, W - 2, h - 2, R)
     glows = "".join(
         f'<radialGradient id="g{i}" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate({x} {y}) scale({rx} {ry})">'
