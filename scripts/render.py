@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 import datetime
+import json
 import math
 import pathlib
 import re
 import sys
+import urllib.request
 import zoneinfo
 
 GREEN = "#3ddc84"
@@ -51,6 +53,45 @@ def eventide(t):
     )
 
 
+CHROMIUM_TABS = {
+    "dark": dict(card="#26222c", edge="#3d3745", bar="#322d39", ink="#ece8f0", dim="#8f879a"),
+    "light": dict(card="#ffffff", edge="#d9d3e0", bar="#f1eef5", ink="#1a1520", dim="#8a8294"),
+}
+CHROMIUM_BLUE = "#1a73e8"
+
+
+def chromium_latest():
+    try:
+        with urllib.request.urlopen("https://raw.githubusercontent.com/holtdroid/chromium-builds/main/releases.json", timeout=30) as f:
+            return str(next(v for v in json.load(f)["versions"] if v["latest"])["milestone"])
+    except Exception:
+        return ""
+
+
+def chromium_tabs(t):
+    c = CHROMIUM_TABS[t["name"]]
+    latest = chromium_latest()
+
+    def tab(x, y, w, h, label, front):
+        out = (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="5" fill="{c["card"]}" stroke="{"url(#tabring)" if front else c["edge"]}" stroke-width="{1.75 if front else 1.1}"/>'
+               f'<path d="M{x + .9} {y + 9}V{y + 5}a4.1 4.1 0 0 1 4.1-4.1h{w - 10}a4.1 4.1 0 0 1 4.1 4.1V{y + 9}Z" fill="{c["bar"]}"/>'
+               f'<circle cx="{x + 5.2}" cy="{y + 5}" r="1.7" fill="{CHROMIUM_BLUE}"/>'
+               f'<path d="M{x + w - 7.2} {y + 3.6}l2.8 2.8m0-2.8l-2.8 2.8" stroke="{c["dim"]}" stroke-width="1.05" stroke-linecap="round"/>')
+        if front:
+            return out + (f'<rect x="{x + 9}" y="{y + 4.2}" width="11" height="1.6" rx=".8" fill="{c["dim"]}"/>'
+                          f'<text x="{x + w / 2}" y="{y + 27}" text-anchor="middle" font-family="{MONO}" font-size="12" font-weight="700" fill="{c["ink"]}">{label}</text>')
+        return out + f'<text x="{x + 9}" y="{y + 6.9}" font-family="{MONO}" font-size="6" font-weight="700" fill="{c["dim"]}">{label}</text>'
+
+    return (
+        '<linearGradient id="tabring" gradientUnits="userSpaceOnUse" x1="12" y1="40" x2="52" y2="40">'
+        f'<stop stop-color="{CHROMIUM_BLUE}"/><stop offset=".5" stop-color="#9cc0fa"/><stop offset="1" stop-color="{CHROMIUM_BLUE}"/>'
+        '<animateTransform attributeName="gradientTransform" type="rotate" from="0 32 40" to="360 32 40" dur="30s" repeatCount="indefinite"/>'
+        '</linearGradient><g transform="rotate(-6 32 34)">'
+        + tab(16, 6, 32, 30, "83", False) + tab(14, 14, 36, 30, "120", False) + tab(12, 22, 40, 36, latest or "159", True)
+        + "</g>"
+    )
+
+
 def holtkeeper_eyes(icon):
     eyes = re.findall(r'<circle cx="(?:2[12]|4[23])[.\d]*" cy="3[0-2][.\d]*" r="[\d.]+" fill="#(?:0b0b0c|fff)"/>', icon)
     for e in eyes:
@@ -82,6 +123,11 @@ PROJECTS = [
          glows=[(80, 20, 300, 150, "#7f77dd", 1), (420, 160, 300, 110, "#e0704a", .6), (820, 0, 220, 120, "#4f46e5", .6)],
          text="A Home Assistant calendar card where events rise before they start and ebb while they run.",
          icon=eventide,
+         css=""),
+    dict(slug="chromium-builds", url="https://holtdroid.github.io/chromium-builds/", repo="holtdroid/chromium-builds", title="Chromium Builds", accent="#2f6fe4",
+         glows=[(70, 30, 300, 150, "#2f6fe4", 1), (440, 160, 300, 110, "#60a5fa", .55), (820, -10, 220, 120, "#1d4ed8", .5)],
+         text="Chromium and Android WebView APKs since Android 11, x86_64 and arm64, with H.264, AAC, HEVC codecs and DevTools.",
+         icon=chromium_tabs, icon_size=90,
          css=""),
 ]
 
@@ -119,6 +165,7 @@ def tones(accent, t):
 
 def plaque(p, t):
     icon = p["icon"](t) if callable(p["icon"]) else p["icon"]
+    size = p.get("icon_size", 72)
     glows = "".join(
         f'<radialGradient id="g{i}" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate({x} {y}) scale({rx} {ry})">'
         f'<stop stop-color="{c}" stop-opacity="{t["glow"] * k:.2f}"/><stop offset=".55" stop-color="{c}" stop-opacity="{t["glow"] * k * .35:.2f}"/><stop offset="1" stop-color="{c}" stop-opacity="0"/></radialGradient>'
@@ -140,7 +187,7 @@ def plaque(p, t):
 <g clip-path="url(#c)"><rect width="{W}" height="{H}" fill="{t["bg"]}"/>{layers}</g>
 <path d="{shape}" fill="none" stroke="{t["stroke"]}" stroke-width="1.5"/>
 <path d="{tile}" fill="{t["bg2"]}" stroke="{t["stroke"]}"/>
-<svg x="32" y="30" width="72" height="72" viewBox="0 0 64 64">{icon}</svg>
+<svg x="{68 - size / 2:g}" y="{66 - size / 2:g}" width="{size}" height="{size}" viewBox="0 0 64 64">{icon}</svg>
 <text x="148" y="40" font-family="{MONO}" font-size="14" fill="{meta}"><tspan fill="{a}">{p["repo"].split("/")[0]}/</tspan>{p["repo"].split("/")[1]}</text>
 <text x="146" y="70" font-family="{FONT}" font-size="28" font-weight="700" fill="{t["title"]}">{p["title"]}</text>
 {body}

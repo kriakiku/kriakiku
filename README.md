@@ -27,6 +27,10 @@
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/kriakiku/kriakiku/output/plaque-eventide-dark.svg">
   <img src="https://raw.githubusercontent.com/kriakiku/kriakiku/output/plaque-eventide-light.svg" width="100%" alt="Eventide — Home Assistant calendar card">
 </picture></a>
+<a href="https://holtdroid.github.io/chromium-builds/"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/kriakiku/kriakiku/output/plaque-chromium-builds-dark.svg">
+  <img src="https://raw.githubusercontent.com/kriakiku/kriakiku/output/plaque-chromium-builds-light.svg" width="100%" alt="Chromium Builds — Chromium and Android WebView APKs for every version since Android 11">
+</picture></a>
 </p>
 
 ## Activity
