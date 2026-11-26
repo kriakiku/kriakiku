@@ -84,7 +84,7 @@ def chromium_tabs(t):
 
     return (
         '<linearGradient id="tabring" gradientUnits="userSpaceOnUse" x1="12" y1="40" x2="52" y2="40">'
-        f'<stop stop-color="{CHROMIUM_BLUE}"/><stop offset=".5" stop-color="#9cc0fa"/><stop offset="1" stop-color="{CHROMIUM_BLUE}"/>'
+        f'<stop stop-color="{CHROMIUM_BLUE}"/><stop offset=".5" stop-color="#6ea6f6"/><stop offset="1" stop-color="{CHROMIUM_BLUE}"/>'
         '<animateTransform attributeName="gradientTransform" type="rotate" from="0 32 40" to="360 32 40" dur="30s" repeatCount="indefinite"/>'
         '</linearGradient><g transform="rotate(-6 32 34)">'
         + tab(16, 6, 32, 30, "83", False) + tab(14, 14, 36, 30, "120", False) + tab(12, 22, 40, 36, latest or "159", True)
