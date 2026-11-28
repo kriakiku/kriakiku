@@ -11,7 +11,6 @@ import urllib.request
 from render import FONT, MONO, R, THEMES, W, glow_layers, squircle
 
 LOGIN = "kriakiku"
-ORGS = ["holtdroid", "holtkeeper", "peleda-app", "holtmail"]
 
 TRACK = {"dark": "#2fbf4a", "light": "#15803d"}
 RED = {"dark": "#f43f5e", "light": "#e11d48"}
@@ -22,9 +21,8 @@ GLOWS = [(140, 60, 420, 220, "#16a34a", 1), (560, 300, 420, 180, "#15803d", .65)
 REPOS = "nodes { isFork stargazerCount }"
 QUERY = (
     "query { user(login: \"%s\") { contributionsCollection { contributionCalendar { totalContributions weeks { contributionDays { date contributionCount } } } }"
-    " repositories(first: 100, ownerAffiliations: OWNER, privacy: PUBLIC) { totalCount %s } }" % (LOGIN, REPOS)
-    + "".join(f' {o.replace("-", "_")}: organization(login: "{o}") {{ repositories(first: 100, privacy: PUBLIC) {{ totalCount {REPOS} }} }}' for o in ORGS)
-    + " }"
+    " repositories(first: 100, ownerAffiliations: OWNER, privacy: PUBLIC) { totalCount %s }"
+    " organizations(first: 100) { nodes { repositories(first: 100, privacy: PUBLIC) { totalCount %s } } } } }" % (LOGIN, REPOS, REPOS)
 )
 
 
@@ -69,8 +67,8 @@ def collect(data, gitlab):
     github = {d["date"]: d["contributionCount"] for w in calendar["weeks"] for d in w["contributionDays"]}
     repos = [r for r in user["repositories"]["nodes"] if not r["isFork"]]
     repo_count = user["repositories"]["totalCount"]
-    for o in ORGS:
-        org = data[o.replace("-", "_")]["repositories"]
+    for o in user["organizations"]["nodes"]:
+        org = o["repositories"]
         repos += [r for r in org["nodes"] if not r["isFork"]]
         repo_count += org["totalCount"]
     first = datetime.date.fromisoformat(min(github))
